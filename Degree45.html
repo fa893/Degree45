@@ -1,584 +1,638 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Degree45 | Solar Intelligence Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap');
-        
-        body {
-            font-family: 'Plus Jakarta Sans', 'Noto+Sans+Arabic', sans-serif;
-            background: #f8fafc;
-            color: #0f172a;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Degree45 | حاسبة التوفير الشمسي</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
-        }
+    :root {
+      --brand-blue: #1f4fa3;
+      --brand-blue-dark: #153872;
+      --brand-soft: #edf4ff;
+      --brand-line: #b8ccee;
+      --brand-emerald: #059669;
+      --brand-gold: #f59e0b;
+      --text-main: #0f172a;
+      --paper: #ffffff;
+      --shell-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+    }
 
-        .gradient-brand {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-        }
+    * { box-sizing: border-box; }
 
-        .success-pulse {
-            animation: success-glow 2s infinite;
-        }
+    body {
+      font-family: 'Cairo', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(31, 79, 163, 0.14), transparent 28%),
+        radial-gradient(circle at top left, rgba(5, 150, 105, 0.08), transparent 26%),
+        linear-gradient(180deg, #f6f9ff 0%, #eef5ff 52%, #f9fbff 100%);
+    }
 
-        @keyframes success-glow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-            50% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
-        }
+    .shell {
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shell-shadow);
+      border: 1px solid rgba(184, 204, 238, 0.7);
+    }
 
-        [dir="rtl"] .text-left-ar { text-align: right; }
-        
-        @media print {
-            .no-print { display: none; }
-            body { background: white; }
-            .glass-card { border: 1px solid #eee; box-shadow: none; }
-        }
+    .invoice-card {
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+      border: 1px solid rgba(184, 204, 238, 0.9);
+      box-shadow: 0 18px 55px rgba(15, 23, 42, 0.08);
+    }
 
-        .ocr-highlight {
-            animation: highlight-fade 2s ease-out;
-        }
+    .bill-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
 
-        @keyframes highlight-fade {
-            0% { background-color: rgba(16, 185, 129, 0.2); }
-            100% { background-color: transparent; }
-        }
-    </style>
+    .bill-table th,
+    .bill-table td {
+      border: 1.25px solid #4870b4;
+      padding: 10px 8px;
+      vertical-align: middle;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .bill-table th {
+      color: var(--brand-blue-dark);
+      background: #f4f8ff;
+      font-weight: 800;
+    }
+
+    .bill-table .group-title {
+      background: linear-gradient(90deg, #edf4ff 0%, #f8fbff 100%);
+      color: var(--brand-blue-dark);
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+
+    .field-input,
+    .field-output {
+      width: 100%;
+      border: 1px dashed transparent;
+      background: transparent;
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+      font-weight: 800;
+      outline: none;
+      transition: .18s ease;
+    }
+
+    .field-input::placeholder { color: #94a3b8; }
+
+    .field-input:focus {
+      background: rgba(5, 150, 105, 0.06);
+      border-color: rgba(5, 150, 105, 0.55);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.10);
+      transform: translateY(-1px);
+    }
+
+    .field-output {
+      background: rgba(31, 79, 163, 0.05);
+      color: var(--brand-blue-dark);
+      border-color: rgba(31, 79, 163, 0.12);
+    }
+
+    .field-input.error {
+      border-color: rgba(220, 38, 38, 0.6);
+      background: rgba(220, 38, 38, 0.06);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+
+    .hero-badge {
+      background: rgba(31, 79, 163, 0.08);
+      color: var(--brand-blue-dark);
+      border: 1px solid rgba(31, 79, 163, 0.14);
+    }
+
+    .metric-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(249,252,255,0.98) 100%);
+      border: 1px solid rgba(184, 204, 238, 0.9);
+      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+    }
+
+    .metric-card::before {
+      content: "";
+      position: absolute;
+      inset-inline-start: 0;
+      top: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--brand-blue) 0%, var(--brand-emerald) 100%);
+    }
+
+    .mega-saving {
+      background: linear-gradient(135deg, #0f172a 0%, #17315f 55%, #0f766e 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 25px 70px rgba(15, 23, 42, 0.22);
+    }
+
+    .mega-saving::before {
+      background: linear-gradient(90deg, #34d399 0%, #fbbf24 100%);
+    }
+
+    .floating-orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(10px);
+      opacity: .18;
+      pointer-events: none;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      transition: background-color .2s ease, transform .2s ease;
+    }
+
+    .status-chip:hover { transform: translateY(-1px); }
+
+    .soft-panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(245,248,255,0.96) 100%);
+      border: 1px solid rgba(184, 204, 238, 0.8);
+    }
+
+    .result-number {
+      font-size: clamp(1.8rem, 5vw, 3.3rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .mini-value {
+      font-size: clamp(1.1rem, 3.6vw, 1.7rem);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .fade-up { animation: fadeUp .45s ease; }
+    .pulse-soft { animation: pulseSoft .45s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseSoft {
+      0% { transform: scale(0.985); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 768px) {
+      .bill-table th,
+      .bill-table td {
+        font-size: 12px;
+        padding: 8px 5px;
+      }
+
+      .field-input,
+      .field-output {
+        padding: 8px 6px;
+        font-size: 13px;
+      }
+    }
+  </style>
 </head>
-<body class="min-h-screen pb-12">
+<body>
+  <main class="max-w-7xl mx-auto px-4 py-5 md:px-6 md:py-8">
+    <section class="shell rounded-[32px] p-4 md:p-7 mb-6 relative overflow-hidden">
+      <div class="floating-orb w-28 h-28 bg-emerald-400 top-0 left-4"></div>
+      <div class="floating-orb w-36 h-36 bg-blue-500 bottom-0 right-8"></div>
 
-    <!-- Header / Branding -->
-    <header class="bg-white border-b border-slate-100 py-4 px-6 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <!-- Logo Placeholder -->
-                <div class="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden">
-                    <img src="logo.png" alt="D45" class="w-full h-full object-contain" onerror="this.innerHTML='<div class=\'bg-emerald-600 w-full h-full flex items-center justify-center text-white font-bold text-xl\'>D</div>'">
-                </div>
-                <div>
-                    <h1 class="text-xl font-extrabold tracking-tight text-slate-900 leading-none">Degree<span class="text-emerald-600">45</span></h1>
-                    <p class="text-[10px] uppercase font-bold tracking-widest text-slate-400">Solar Intelligence Platform</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <button id="langToggle" class="text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors px-3 py-1 border rounded-md">العربية</button>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-6xl mx-auto px-6 pt-8">
-        <!-- Input Section -->
-        <div class="grid lg:grid-cols-12 gap-8 mb-12">
-            <!-- OCR Scanner -->
-            <div class="lg:col-span-5">
-                <div class="glass-card rounded-3xl p-6 h-full flex flex-col justify-between">
-                    <div>
-                        <h2 id="ocrTitle" class="text-lg font-bold mb-4 flex items-center gap-2">
-                            <i data-lucide="camera" class="w-5 h-5 text-emerald-500"></i>
-                            Analyze Electric Bill
-                        </h2>
-                        <div id="dropzone" class="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-emerald-400 hover:bg-emerald-50 transition-all cursor-pointer relative overflow-hidden">
-                            <input type="file" id="fileInput" class="hidden" accept="image/*">
-                            <div id="ocrInitial">
-                                <i data-lucide="upload-cloud" class="w-12 h-12 text-slate-300 mx-auto mb-4"></i>
-                                <p id="ocrPrompt" class="text-sm font-bold text-slate-600">Scan Bill (JEPCO / IDECO / EDCO)</p>
-                                <p class="text-[10px] text-slate-400 mt-2">Supports Arabic & English Invoices</p>
-                            </div>
-                            <div id="ocrLoading" class="hidden py-4">
-                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-                                <p id="ocrStatus" class="text-sm font-bold text-emerald-600">AI Extracting Fields...</p>
-                                <p id="ocrProgress" class="text-[10px] text-slate-400 mt-1">Initializing Tesseract Engine</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
-                         <p class="text-[10px] text-amber-700 font-medium leading-tight">
-                            <i data-lucide="shield-check" class="w-3 h-3 inline mr-1"></i>
-                            Privacy: Data is processed in your browser (Client-Side) and never leaves your device.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Manual Data Entry -->
-            <div class="lg:col-span-7">
-                <div class="glass-card rounded-3xl p-8 h-full">
-                    <h2 id="manualTitle" class="text-lg font-bold mb-6 flex items-center gap-2">
-                        <i data-lucide="file-edit" class="w-5 h-5 text-amber-500"></i>
-                        Verification & Data Entry
-                    </h2>
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div class="space-y-4">
-                            <div>
-                                <label id="lblCustomer" class="text-[11px] font-bold text-slate-400 uppercase">Customer Name</label>
-                                <input type="text" id="custName" placeholder="..." class="w-full border-b-2 border-slate-100 py-2 focus:border-emerald-500 outline-none font-bold transition-colors">
-                            </div>
-                            <div>
-                                <label id="lblAccount" class="text-[11px] font-bold text-slate-400 uppercase">Account / Meter No.</label>
-                                <input type="text" id="accNo" placeholder="..." class="w-full border-b-2 border-slate-100 py-2 focus:border-emerald-500 outline-none font-bold transition-colors">
-                            </div>
-                        </div>
-                        <div class="space-y-4">
-                            <div>
-                                <label id="lblKwh" class="text-[11px] font-bold text-slate-400 uppercase">Consumption (kWh)</label>
-                                <input type="number" id="inputKwh" placeholder="0" class="w-full border-b-2 border-slate-100 py-2 focus:border-emerald-500 outline-none font-bold text-emerald-600 text-xl transition-colors">
-                            </div>
-                            <div>
-                                <label id="lblJod" class="text-[11px] font-bold text-slate-400 uppercase">Bill Amount (JOD)</label>
-                                <input type="number" id="inputJod" placeholder="0.00" class="w-full border-b-2 border-slate-100 py-2 focus:border-emerald-500 outline-none font-bold text-amber-600 text-xl transition-colors">
-                            </div>
-                        </div>
-                    </div>
-                    <button id="calculateBtn" class="w-full mt-8 gradient-brand text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-emerald-200 hover:scale-[1.02] active:scale-95 transition-all">
-                        Generate Technical Forecast
-                    </button>
-                </div>
-            </div>
+      <div class="relative z-10 grid lg:grid-cols-[1.2fr_0.8fr] gap-5 items-center">
+        <div>
+          <div class="hero-badge inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-black mb-4">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            عرض استشاري سريع للعميل
+          </div>
+          <h1 class="text-2xl md:text-4xl font-black text-slate-900 leading-tight mb-3">حاسبة توفير شمسي مخصصة لعرض العميل</h1>
+          <p class="text-slate-600 leading-8 text-sm md:text-base max-w-2xl">
+            أدخل القراءة السابقة والحالية، وخلي العميل يشوف فورًا الاستهلاك المحسوب، قيمة استهلاك الكهرباء فقط، والتوفير الشهري المتوقع بشكل واضح ومقنع على الهاتف.
+          </p>
         </div>
 
-        <!-- Dashboard -->
-        <div id="resultDashboard" class="hidden space-y-8 animate-in fade-in duration-500">
-            
-            <!-- Success Toast -->
-            <div id="successToast" class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center gap-4 success-pulse">
-                <div class="bg-emerald-500 text-white rounded-full p-1"><i data-lucide="check" class="w-4 h-4"></i></div>
-                <p id="successMsg" class="text-emerald-800 text-sm font-bold">AI Analysis Complete: Results aligned with Jordan Net-Metering regulations.</p>
+        <div class="soft-panel rounded-[28px] p-4 md:p-5">
+          <div class="flex items-center justify-between gap-3 mb-4">
+       <div class="w-80 h-28 md:w-[22rem] md:h-32 rounded-2xl bg-white border border-dashed border-blue-300 flex items-center justify-center overflow-hidden shadow-sm px-4">
+  <img
+    src="logo.png"
+    alt="logo"
+    class="w-full h-full object-contain"
+    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+  />
+  <div class="hidden w-full h-full items-center justify-center text-center text-sm md:text-base font-black text-blue-900">
+    logo.png
+  </div>
+</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid xl:grid-cols-[1.08fr_0.92fr] gap-6">
+      <section class="invoice-card rounded-[32px] overflow-hidden">
+        <div class="p-4 md:p-6 border-b border-blue-100 bg-gradient-to-r from-white to-blue-50">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-200">
+              <i data-lucide="receipt-text" class="w-6 h-6"></i>
             </div>
-
-            <!-- Bill Summary & Technical Specs -->
-            <div class="grid lg:grid-cols-3 gap-8">
-                
-                <!-- Bill Analysis Panel -->
-                <div class="glass-card rounded-[2rem] p-8 border-l-4 border-emerald-500">
-                    <h3 id="panelBillTitle" class="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Bill Analysis Panel</h3>
-                    <div class="space-y-4">
-                        <div class="flex justify-between border-b border-slate-50 pb-2">
-                            <span id="pnlName" class="text-slate-500 text-sm">Customer</span>
-                            <span id="resName" class="font-bold text-slate-800">--</span>
-                        </div>
-                        <div class="flex justify-between border-b border-slate-50 pb-2">
-                            <span id="pnlAcc" class="text-slate-500 text-sm">Account</span>
-                            <span id="resAcc" class="font-bold text-slate-800">--</span>
-                        </div>
-                        <div class="flex justify-between border-b border-slate-50 pb-2">
-                            <span id="pnlUsage" class="text-slate-500 text-sm">Monthly Usage</span>
-                            <span id="resUsage" class="font-bold text-slate-800 text-emerald-600">-- kWh</span>
-                        </div>
-                        <div class="flex justify-between border-b border-slate-50 pb-2">
-                            <span id="pnlTier" class="text-slate-500 text-sm">Tariff Tier</span>
-                            <span id="resTier" class="font-bold text-slate-800">--</span>
-                        </div>
-                        <div class="pt-4 text-center">
-                            <p id="pnlEstAnn" class="text-[10px] font-bold text-slate-400 uppercase mb-1">Estimated Annual Bill</p>
-                            <h4 id="resAnnJod" class="text-2xl font-black text-slate-900">-- JOD</h4>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Technical Configuration -->
-                <div class="glass-card rounded-[2rem] p-8 border-l-4 border-amber-500">
-                    <h3 id="panelSysTitle" class="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Solar System Blueprint</h3>
-                    <div class="space-y-6">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500"><i data-lucide="zap"></i></div>
-                            <div>
-                                <p id="lblSysSize" class="text-[10px] font-black text-slate-400 uppercase">System Size</p>
-                                <h4 class="text-xl font-bold text-slate-900"><span id="resSize">--</span> kWp</h4>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500"><i data-lucide="layout"></i></div>
-                            <div>
-                                <p id="lblPanels" class="text-[10px] font-black text-slate-400 uppercase">Number of Panels</p>
-                                <h4 class="text-xl font-bold text-slate-900"><span id="resPanels">--</span> Units</h4>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500"><i data-lucide="box"></i></div>
-                            <div>
-                                <p id="lblInverter" class="text-[10px] font-black text-slate-400 uppercase">Inverter Rec.</p>
-                                <h4 id="resInverter" class="text-xl font-bold text-slate-900">-- kW</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Projected Savings -->
-                <div class="glass-card rounded-[2rem] p-8 border-l-4 border-blue-500">
-                    <h3 id="panelSaveTitle" class="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Savings Intelligence</h3>
-                    <div class="space-y-6">
-                        <div class="bg-blue-50 p-4 rounded-2xl">
-                            <p id="lblAnnSav" class="text-[10px] font-black text-blue-600 uppercase mb-1">Estimated Annual Savings</p>
-                            <h4 class="text-2xl font-black text-blue-900"><span id="resAnnSav">--</span> JOD</h4>
-                        </div>
-                        <div class="flex justify-between items-center px-2">
-                            <div>
-                                <p id="lblOffset" class="text-[10px] font-black text-slate-400 uppercase">Energy Offset</p>
-                                <h4 class="text-xl font-bold text-slate-900"><span id="resOffset">--</span>%</h4>
-                            </div>
-                            <div class="text-right">
-                                <p id="lblROI" class="text-[10px] font-black text-slate-400 uppercase">Est. Payback</p>
-                                <h4 class="text-xl font-bold text-slate-900"><span id="resPayback">--</span> yrs</h4>
-                            </div>
-                        </div>
-                        <p id="savingsDisclaimer" class="text-[10px] text-slate-400 italic">Results based on current Jordan electricity tariffs.</p>
-                    </div>
-                </div>
+            <div>
+              <p class="text-xs font-black text-slate-400">تصميم قريب من روح الفاتورة</p>
+              <h2 class="text-xl md:text-2xl font-black text-[var(--brand-blue-dark)]">بيانات الحساب</h2>
             </div>
+          </div>
+        </div>
 
-            <!-- AI Recommendation Engine -->
-            <div class="glass-card rounded-[2rem] p-8">
-                <div class="flex flex-col md:flex-row gap-8 items-center">
-                    <div class="md:w-1/3 text-center md:text-left-ar">
-                        <div id="recBadge" class="inline-block bg-slate-900 text-white text-[10px] font-black px-4 py-1 rounded-full mb-4 uppercase tracking-tighter">Recommended Config</div>
-                        <h2 id="recType" class="text-3xl font-black text-slate-900 mb-2">--</h2>
-                        <p id="recContext" class="text-slate-500 text-sm font-medium">Selected based on consumption tier and grid reliability.</p>
-                    </div>
-                    <div class="md:w-2/3 bg-slate-50 p-6 rounded-3xl">
-                        <p id="recDesc" class="text-slate-600 leading-relaxed mb-4">Detailed engineering reasoning will appear here...</p>
-                        <div class="flex flex-wrap gap-4">
-                            <span class="flex items-center gap-2 text-xs font-bold text-emerald-600"><i data-lucide="check-circle" class="w-4 h-4"></i> High Cost Efficiency</span>
-                            <span class="flex items-center gap-2 text-xs font-bold text-emerald-600"><i data-lucide="check-circle" class="w-4 h-4"></i> ERC Compliant</span>
-                            <span class="flex items-center gap-2 text-xs font-bold text-emerald-600"><i data-lucide="check-circle" class="w-4 h-4"></i> Net-Metering Ready</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="p-4 md:p-6">
+          <table class="bill-table mb-5">
+            <tr>
+              <th class="w-[24%]">شهر الفاتورة</th>
+              <td><input id="billingMonth" type="month" class="field-input" /></td>
+              <th class="w-[24%]">فترة القراءة</th>
+              <td><input id="billingPeriod" type="text" class="field-input" placeholder="مثال: 01-2025" /></td>
+            </tr>
+            <tr>
+              <th>القراءة السابقة</th>
+              <td><input id="previousReading" inputmode="decimal" class="field-input calc-input" placeholder="0" /></td>
+              <th>القراءة الحالية/ القراءة المحتسبة</th>
+              <td><input id="currentReading" inputmode="decimal" class="field-input calc-input" placeholder="0" /></td>
+            </tr>
+            <tr>
+              <th>الاستهلاك (ك.و.س)</th>
+              <td>
+                <div id="consumptionKwh" class="field-output">0</div>
+              </td>
+              <th>قيمة استهلاك الكهرباء</th>
+              <td><div id="billAmount" class="field-output">0.000</div></td>
+            </tr>
+          </table>
 
-            <!-- Mandatory Legal Disclaimer -->
-            <div class="p-6 bg-slate-100 rounded-2xl border border-slate-200">
-                <h4 class="text-xs font-black text-slate-500 uppercase mb-2">Legal Disclaimer & Compliance</h4>
-                <p id="legalDisclaimer" class="text-[11px] text-slate-500 leading-relaxed">
-                    This system provides estimated solar performance and financial projections based on Jordan electricity tariffs and net-metering regulations. Actual results may vary depending on site conditions, seasonal weather patterns, and utility policies. Degree45 does not guarantee zero electricity bills as minimum service fees and fixed charges may apply per Jordan Electricity Regulatory Commission standards. All calculations are for informational purposes.
+          <table class="bill-table mb-5">
+            <tr><th colspan="4" class="group-title">تفصيل الشرائح الكهربائية فقط</th></tr>
+            <tr>
+              <th>من</th>
+              <th>إلى</th>
+              <th>سعر الكيلو</th>
+              <th>الكمية</th>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>300</td>
+              <td>0.050</td>
+              <td id="tier1Usage">0</td>
+            </tr>
+            <tr>
+              <td>301</td>
+              <td>600</td>
+              <td>0.100</td>
+              <td id="tier2Usage">0</td>
+            </tr>
+            <tr>
+              <td>601</td>
+              <td>999999</td>
+              <td>0.200</td>
+              <td id="tier3Usage">0</td>
+            </tr>
+          </table>
+
+          <div class="soft-panel rounded-[24px] p-4 md:p-5">
+            <div class="flex items-start gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-white text-emerald-700 flex items-center justify-center shadow-sm shrink-0">
+                <i data-lucide="calculator" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="text-sm font-black text-slate-900 mb-1">الحساب تلقائي وتفاعلي</p>
+                <p class="text-sm text-slate-600 leading-7">
+                  بمجرد إدخال القراءة السابقة والحالية، الموقع يحسب فرق القراءة تلقائيًا ويعوضه مباشرة في الاستهلاك وقيمة الكهرباء بدون رسوم إضافية.
                 </p>
+              </div>
             </div>
-
-            <div class="flex gap-4 no-print">
-                <button onclick="window.print()" class="flex-1 bg-slate-900 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2">
-                    <i data-lucide="download" class="w-5 h-5"></i> Download PDF Proposal
-                </button>
-            </div>
+          </div>
         </div>
-    </main>
+      </section>
 
-    <footer class="mt-12 text-center px-6">
-        <p class="text-sm font-bold text-slate-400">Powered by Degree45 Solar Intelligence Platform</p>
-        <p class="text-[11px] text-slate-300 mt-1 uppercase tracking-widest">Developed & Designed by Engineer Farhan Al-Khawaldeh</p>
-    </footer>
+      <section class="space-y-5">
+        <article id="savingsHero" class="metric-card mega-saving p-5 md:p-7 fade-up">
+          <div class="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <p class="text-xs font-black text-white/70 mb-2">أقوى نقطة بيع للعميل</p>
+              <h2 class="text-xl md:text-2xl font-black">التوفير الشهري المتوقع</h2>
+            </div>
+            <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
+              <i data-lucide="badge-dollar-sign" class="w-7 h-7"></i>
+            </div>
+          </div>
 
-    <script>
-        lucide.createIcons();
+          <div class="result-number mb-3"><span id="monthlySavings">0</span> <span class="text-xl md:text-2xl font-bold">د.أ</span></div>
+          <p class="text-white/78 leading-8 text-sm md:text-base max-w-xl mb-5">
+            هذا هو المبلغ المتوقع توفيره شهريًا عند تركيب النظام المقترح بناءً على استهلاك الكهرباء فقط.
+          </p>
+          <div class="mt-4 rounded-2xl bg-white/10 border border-white/15 p-4">
+  <p class="text-xs font-black text-white/70 mb-2">التوفير السنوي المتوقع</p>
+  <div class="text-2xl md:text-3xl font-black">
+    <span id="annualSavings">0</span>
+    <span class="text-base md:text-lg font-bold">د.أ</span>
+  </div>
+</div>
+          <div class="flex flex-wrap gap-2">
 
-        // Jordan ERC Tariff Rules (2024 Updated)
-        const TARIFFS = [
-            { limit: 300, rate: 0.050 },
-            { limit: 600, rate: 0.100 },
-            { limit: 750, rate: 0.115 },
-            { limit: 1000, rate: 0.120 },
-            { limit: Infinity, rate: 0.130 }
-        ];
+            <span id="offsetBadge" class="status-chip bg-white/10 text-white"><i data-lucide="sun-medium" class="w-4 h-4"></i> تغطية متوقعة 0%</span>
+            <span id="tierBadge" class="status-chip bg-white/10 text-white"><i data-lucide="layers-3" class="w-4 h-4"></i> الشريحة 1</span>
+          </div>
+        </article>
 
-        const translations = {
-            en: {
-                ocrTitle: "Analyze Electric Bill", ocrPrompt: "Scan Bill (JEPCO / IDECO / EDCO)",
-                manualTitle: "Verification & Data Entry", lblCustomer: "Customer Name",
-                lblAccount: "Account / Meter No.", lblKwh: "Consumption (kWh)",
-                lblJod: "Bill Amount (JOD)", calculateBtn: "Generate Technical Forecast",
-                panelBillTitle: "Bill Analysis Panel", pnlName: "Customer",
-                pnlAcc: "Account", pnlUsage: "Monthly Usage",
-                pnlTier: "Tariff Tier", pnlEstAnn: "Estimated Annual Bill",
-                panelSysTitle: "Solar System Blueprint", lblSysSize: "System Size",
-                lblPanels: "Number of Panels", lblInverter: "Inverter Rec.",
-                panelSaveTitle: "Savings Intelligence", lblAnnSav: "Estimated Annual Savings",
-                lblOffset: "Energy Offset Potential", lblROI: "Est. Payback",
-                successMsg: "AI Analysis Complete: Results aligned with Jordan Net-Metering regulations.",
-                recOnGrid: "On-Grid Net Metering", recHybrid: "Hybrid Energy Storage",
-                recOffGrid: "Off-Grid Autonomy",
-                descOnGrid: "The most cost-effective solution for residential areas in Jordan. Excess energy produced during the day is exported to the grid and credited against your night consumption.",
-                descHybrid: "Recommended for areas with grid instability. Combines solar production with battery backup to ensure critical loads remain powered during outages.",
-                descOffGrid: "Complete independence. Best suited for remote Jordanian farms or locations without utility infrastructure."
-            },
-            ar: {
-                ocrTitle: "تحليل فاتورة الكهرباء", ocrPrompt: "امسح الفاتورة (شركة الكهرباء الأردنية / كهرباء إربد / توزيع الكهرباء)",
-                manualTitle: "التحقق وإدخال البيانات", lblCustomer: "اسم المشترك",
-                lblAccount: "رقم الحساب / العداد", lblKwh: "الاستهلاك (ك.و.س)",
-                lblJod: "قيمة الفاتورة (دينار)", calculateBtn: "إصدار التوقعات الفنية",
-                panelBillTitle: "لوحة تحليل الفاتورة", pnlName: "المشترك",
-                pnlAcc: "رقم الحساب", pnlUsage: "الاستهلاك الشهري",
-                pnlTier: "شريحة التعرفة", pnlEstAnn: "فاتورة السنة المتوقعة",
-                panelSysTitle: "مخطط النظام الشمسي", lblSysSize: "حجم النظام",
-                lblPanels: "عدد الألواح", lblInverter: "حجم العاكس",
-                panelSaveTitle: "ذكاء التوفير", lblAnnSav: "التوفير السنوي التقديري",
-                lblOffset: "إمكانية إزاحة الطاقة", lblROI: "فترة الاسترداد",
-                successMsg: "اكتمل تحليل الذكاء الاصطناعي: النتائج متوافقة مع تعليمات صافي القياس في الأردن.",
-                recOnGrid: "نظام صافي القياس المرتبط", recHybrid: "نظام هجين مع تخزين",
-                recOffGrid: "نظام مستقل تماماً",
-                descOnGrid: "الحل الأكثر جدوى اقتصادية للمنازل في الأردن. يتم تصدير الطاقة الفائضة للشبكة نهاراً وخصمها من استهلاكك الليلي.",
-                descHybrid: "يوصى به للمناطق التي تعاني من عدم استقرار الشبكة. يجمع بين إنتاج الطاقة والتخزين لضمان استمرارية الأحمال الضرورية.",
-                descOffGrid: "استقلالية كاملة. الأنسب للمزارع البعيدة أو المواقع التي تفتقر للبنية التحتية لشركات الكهرباء."
-            }
-        };
+        <div class="grid sm:grid-cols-2 gap-5">
+          <article class="metric-card p-5 md:p-6">
+            <div class="flex items-center justify-between gap-3 mb-5">
+              <div>
+                <p class="text-xs font-black text-slate-400 mb-1">الوضع الحالي</p>
+                <h3 class="text-lg font-black text-slate-900">قيمة الكهرباء</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center">
+                <i data-lucide="wallet-cards" class="w-6 h-6"></i>
+              </div>
+            </div>
+            <div class="mini-value mb-2"><span id="currentBillDisplay">0.000</span> <span class="text-base font-bold">د.أ</span></div>
+            <p class="text-sm text-slate-500 leading-7">قيمة استهلاك الكهرباء فقط بدون أي رسوم إضافية.</p>
+          </article>
 
-        let currentLang = 'en';
+          <article class="metric-card p-5 md:p-6">
+            <div class="flex items-center justify-between gap-3 mb-5">
+              <div>
+                <p class="text-xs font-black text-slate-400 mb-1">التوصية الفنية</p>
+                <h3 class="text-lg font-black text-slate-900">حجم النظام</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                <i data-lucide="zap" class="w-6 h-6"></i>
+              </div>
+            </div>
+            <div class="mini-value mb-2"><span id="systemSize">0.00</span> <span class="text-base font-bold">kWp</span></div>
+            <p class="text-sm text-slate-500 leading-7">تقدير مبدئي سريع يساعدك تشرح للعميل حجم النظام المناسب لاستهلاكه.</p>
+          </article>
 
-        // Elements
-        const el = {
-            fileInput: document.getElementById('fileInput'),
-            ocrLoading: document.getElementById('ocrLoading'),
-            ocrInitial: document.getElementById('ocrInitial'),
-            ocrProgress: document.getElementById('ocrProgress'),
-            inputKwh: document.getElementById('inputKwh'),
-            inputJod: document.getElementById('inputJod'),
-            custName: document.getElementById('custName'),
-            accNo: document.getElementById('accNo'),
-            resultDashboard: document.getElementById('resultDashboard'),
-            resName: document.getElementById('resName'),
-            resAcc: document.getElementById('resAcc'),
-            resUsage: document.getElementById('resUsage'),
-            resTier: document.getElementById('resTier'),
-            resAnnJod: document.getElementById('resAnnJod'),
-            resSize: document.getElementById('resSize'),
-            resPanels: document.getElementById('resPanels'),
-            resInverter: document.getElementById('resInverter'),
-            resAnnSav: document.getElementById('resAnnSav'),
-            resOffset: document.getElementById('resOffset'),
-            resPayback: document.getElementById('resPayback'),
-            recType: document.getElementById('recType'),
-            recDesc: document.getElementById('recDesc'),
-            calculateBtn: document.getElementById('calculateBtn'),
-            langToggle: document.getElementById('langToggle')
-        };
+          <article class="metric-card p-5 md:p-6">
+            <div class="flex items-center justify-between gap-3 mb-5">
+              <div>
+                <p class="text-xs font-black text-slate-400 mb-1">المكونات</p>
+                <h3 class="text-lg font-black text-slate-900">عدد الألواح</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                <i data-lucide="layout-grid" class="w-6 h-6"></i>
+              </div>
+            </div>
+            <div class="mini-value mb-2"><span id="panelCount">0</span> <span class="text-base font-bold">لوح</span></div>
+            <p class="text-sm text-slate-500 leading-7">تقدير أولي على أساس ألواح بقدرة 550 واط لعرض سريع وواضح.</p>
+          </article>
 
-        // ERC Math Helpers
-        function getKwhFromBill(bill) {
-            if (!bill || bill <= 0) return 0;
-            let remaining = bill;
-            let kwh = 0;
-            let lastLimit = 0;
-            for (let t of TARIFFS) {
-                let tierSize = t.limit - lastLimit;
-                let cost = tierSize * t.rate;
-                if (remaining > cost) {
-                    kwh += tierSize; remaining -= cost;
-                } else {
-                    kwh += remaining / t.rate; remaining = 0; break;
-                }
-                lastLimit = t.limit;
-            }
-            return Math.round(kwh);
-        }
+          <article class="metric-card p-5 md:p-6">
+            <div class="flex items-center justify-between gap-3 mb-5">
+              <div>
+                <p class="text-xs font-black text-slate-400 mb-1">بعد التركيب</p>
+                <h3 class="text-lg font-black text-slate-900">المتبقي الشهري</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                <i data-lucide="shield-check" class="w-6 h-6"></i>
+              </div>
+            </div>
+            <div class="mini-value mb-2"><span id="remainingBill">0.000</span> <span class="text-base font-bold">د.أ</span></div>
+            <p class="text-sm text-slate-500 leading-7">المبلغ المتوقع بقاؤه من قيمة الكهرباء بعد التغطية الشمسية المقترحة.</p>
+          </article>
+        </div>
 
-        function getBillFromKwh(kwh) {
-            if (!kwh || kwh <= 0) return 0;
-            let total = 0; let remaining = kwh; let lastLimit = 0;
-            for (let t of TARIFFS) {
-                let tierSize = t.limit - lastLimit;
-                let usage = Math.min(remaining, tierSize);
-                total += usage * t.rate; remaining -= usage;
-                lastLimit = t.limit;
-                if (remaining <= 0) break;
-            }
-            return total;
-        }
+        <article class="soft-panel rounded-[28px] p-5 md:p-6">
+          <div class="flex items-start gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-white text-emerald-700 flex items-center justify-center shadow-sm">
+              <i data-lucide="message-square-quote" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <p class="text-xs font-black text-slate-400 mb-1">نص بيع جاهز</p>
+              <p id="salesPitch" class="text-slate-700 leading-8 text-sm md:text-base font-bold">
+                أدخل القراءات ليظهر لك التوفير الشهري المتوقع بشكل مباشر.
+              </p>
+            </div>
+          </div>
+        </article>
+      </section>
+    </section>
+  </main>
 
-        // Bidirectional Auto-Calculations for inputs
-        el.inputKwh.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if (val > 0) el.inputJod.value = getBillFromKwh(val).toFixed(2);
-        });
+  <script>
+    const CONFIG = {
+      irradianceMonthlyPerKwp: 145,
+      performanceRatio: 0.82,
+      designBuffer: 1.10,
+      panelWatt: 550,
+      maxOffset: 93,
+      tariffs: [
+        { max: 300, rate: 0.05 },
+        { max: 600, rate: 0.10 },
+        { max: Infinity, rate: 0.20 }
+      ]
+    };
 
-        el.inputJod.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if (val > 0) el.inputKwh.value = getKwhFromBill(val);
-        });
+    const els = {
+  previousReading: document.getElementById('previousReading'),
+  currentReading: document.getElementById('currentReading'),
+  consumptionKwh: document.getElementById('consumptionKwh'),
+  billAmount: document.getElementById('billAmount'),
+  tier1Usage: document.getElementById('tier1Usage'),
+  tier2Usage: document.getElementById('tier2Usage'),
+  tier3Usage: document.getElementById('tier3Usage'),
+  monthlySavings: document.getElementById('monthlySavings'),
+  annualSavings: document.getElementById('annualSavings'),
+  currentBillDisplay: document.getElementById('currentBillDisplay'),
+  systemSize: document.getElementById('systemSize'),
+  panelCount: document.getElementById('panelCount'),
+  remainingBill: document.getElementById('remainingBill'),
+  offsetBadge: document.getElementById('offsetBadge'),
+  tierBadge: document.getElementById('tierBadge'),
+  salesPitch: document.getElementById('salesPitch'),
+  savingsHero: document.getElementById('savingsHero')
+};
 
-        // OCR Processing Logic
-        async function processOcr(file) {
-            el.ocrInitial.classList.add('hidden');
-            el.ocrLoading.classList.remove('hidden');
-            el.ocrProgress.innerText = "Initializing AI Engine...";
-            
-            try {
-                const worker = await Tesseract.createWorker('eng+ara', 1, {
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            el.ocrProgress.innerText = `Analyzing: ${Math.round(m.progress * 100)}%`;
-                        }
-                    }
-                });
+    function debounce(fn, delay = 120) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
+    }
 
-                const { data } = await worker.recognize(file);
-                await worker.terminate();
+    function parseNumber(value) {
+      if (typeof value !== 'string') return Number.isFinite(value) ? value : null;
+      const normalized = value.replace(/,/g, '').trim();
+      if (!normalized) return null;
+      const num = Number(normalized);
+      return Number.isFinite(num) ? num : null;
+    }
 
-                const text = data.text;
-                console.log("OCR Raw Output:", text);
+    function nonNegative(value) {
+      return value == null ? null : Math.max(0, value);
+    }
 
-                // Improved Regex (Multi-lingual)
-                const kwhPatterns = [
-                    /(?:kWh|استهلاك|الكمية|مجموع الاستهلاك|Active Energy)\s*[:=]?\s*(\d{2,5})/i,
-                    /(\d{2,5})\s*(?:kWh|ك.و.س)/i
-                ];
-                
-                const accPatterns = [
-                    /(?:Account|رقم الحساب|المرجع|Reference|رقم العداد|Meter)\s*[:=]?\s*(\d{5,15})/i,
-                    /رقم العداد\s*[:=]?\s*(\d{5,15})/i
-                ];
+    function fmt3(value) {
+      return Number.isFinite(value) ? value.toFixed(3) : '0.000';
+    }
 
-                const namePatterns = [
-                    /(?:Name|المشترك|السيد|اسم المشترك)\s*[:=]?\s*([^\n]+)/i,
-                    /اسم المشترك\s*[:=]?\s*([^\n]+)/i
-                ];
+    function fmt2(value) {
+      return Number.isFinite(value) ? value.toFixed(2) : '0.00';
+    }
 
-                const billPatterns = [
-                    /(?:Total|المجموع|المبلغ|Net Bill|Amount|دينار)\s*[:=]?\s*(\d{1,4}(?:\.\d{1,3})?)/i,
-                    /(\d{1,4}(?:\.\d{1,3})?)\s*(?:JOD|دينار)/i
-                ];
+    function fmt0(value) {
+      return Number.isFinite(value) ? Math.round(value).toString() : '0';
+    }
 
-                // Extraction
-                let foundKwh = findMatch(text, kwhPatterns);
-                let foundAcc = findMatch(text, accPatterns);
-                let foundName = findMatch(text, namePatterns);
-                let foundBill = findMatch(text, billPatterns);
+    function getTierBreakdown(kwh) {
+      let remaining = nonNegative(kwh) || 0;
+      let total = 0;
+      let previousMax = 0;
+      const breakdown = [0, 0, 0];
 
-                // UI Updates with Feedback
-                if (foundKwh) {
-                    el.inputKwh.value = foundKwh;
-                    el.inputKwh.classList.add('ocr-highlight');
-                }
-                if (foundBill) {
-                    el.inputJod.value = parseFloat(foundBill).toFixed(2);
-                    el.inputJod.classList.add('ocr-highlight');
-                }
-                if (foundAcc) {
-                    el.accNo.value = foundAcc;
-                    el.accNo.classList.add('ocr-highlight');
-                }
-                if (foundName) {
-                    el.custName.value = foundName.trim().substring(0, 40);
-                    el.custName.classList.add('ocr-highlight');
-                }
+      CONFIG.tariffs.forEach((tier, index) => {
+        if (remaining <= 0) return;
+        const span = tier.max === Infinity ? remaining : tier.max - previousMax;
+        const used = Math.min(remaining, span);
+        total += used * tier.rate;
+        breakdown[index] = used;
+        remaining -= used;
+        previousMax = tier.max;
+      });
 
-                // Auto-trigger kwh conversion if only bill was found
-                if (foundBill && !foundKwh) {
-                    el.inputKwh.value = getKwhFromBill(parseFloat(foundBill));
-                }
+      return { energyCharge: total, breakdown };
+    }
 
-                el.ocrLoading.classList.add('hidden');
-                el.ocrInitial.classList.remove('hidden');
-                
-                // Show a small verification cue
-                if (foundKwh || foundBill) calculate();
+    function deriveConsumptionFromReadings() {
+      const previous = nonNegative(parseNumber(els.previousReading.value));
+      const current = nonNegative(parseNumber(els.currentReading.value));
 
-            } catch (e) {
-                console.error("OCR Error:", e);
-                el.ocrProgress.innerText = "Error scanning. Please try manual entry.";
-                setTimeout(() => {
-                    el.ocrLoading.classList.add('hidden');
-                    el.ocrInitial.classList.remove('hidden');
-                }, 2000);
-            }
-        }
+      els.previousReading.classList.remove('error');
+      els.currentReading.classList.remove('error');
 
-        function findMatch(text, patterns) {
-            for (let p of patterns) {
-                const match = text.match(p);
-                if (match && match[1]) return match[1];
-            }
-            return null;
-        }
+      if (previous == null || current == null) return null;
 
-        function calculate() {
-            let kwh = parseFloat(el.inputKwh.value);
-            let bill = parseFloat(el.inputJod.value);
+      if (current < previous) {
+        els.currentReading.classList.add('error');
+        return null;
+      }
 
-            if (isNaN(kwh) && isNaN(bill)) return;
-            if (isNaN(kwh)) kwh = getKwhFromBill(bill);
-            if (isNaN(bill)) bill = getBillFromKwh(kwh);
+      return current - previous;
+    }
 
-            // Calculations based on Jordan Standard (Degree45 Technical Specs)
-            // System size: Peak production in Jordan approx 140-150 kWh/kWp/month
-            const sysSize = (kwh / 140) * 1.15; 
-            const panels = Math.ceil((sysSize * 1000) / 550); // Using 550W Standard
-            const inverter = Math.ceil(sysSize);
-            const annualBill = bill * 12;
-            
-            // Average Jordan residential install cost $500/kWp
-            const cost = sysSize * 550; 
-            const payback = cost / annualBill;
+    function getOffsetRate(kwh) {
+      if (kwh <= 0) return 0;
+      if (kwh <= 300) return 88;
+      if (kwh <= 600) return 91;
+      return CONFIG.maxOffset;
+    }
 
-            // Update Result UI
-            el.resName.innerText = el.custName.value || (currentLang === 'ar' ? "مشترك افتراضي" : "Guest Customer");
-            el.resAcc.innerText = el.accNo.value || "---";
-            el.resUsage.innerText = Math.round(kwh);
-            el.resAnnJod.innerText = Math.round(annualBill);
-            
-            // Tier Determination
-            let tier = "1";
-            if (kwh > 1000) tier = "5";
-            else if (kwh > 750) tier = "4";
-            else if (kwh > 600) tier = "3";
-            else if (kwh > 300) tier = "2";
-            el.resTier.innerText = tier;
-            
-            el.resSize.innerText = sysSize.toFixed(2);
-            el.resPanels.innerText = panels;
-            el.resInverter.innerText = inverter;
-            
-            // Financials (Assume 90-95% bill offset due to fixed ERC fees)
-            el.resAnnSav.innerText = Math.round(annualBill * 0.92); 
-            el.resOffset.innerText = "92";
-            el.resPayback.innerText = payback.toFixed(1);
+    function getTierLabel(kwh) {
+      if (kwh <= 300) return 'الشريحة 1';
+      if (kwh <= 600) return 'الشريحة 2';
+      return 'الشريحة 3';
+    }
 
-            // Recommendation Logic
-            if (kwh < 300) {
-                el.recType.innerText = translations[currentLang].recOnGrid;
-                el.recDesc.innerText = "Minimum consumption profile. On-grid solar provides high ROI for Tier 1 users.";
-            } else if (kwh < 1000) {
-                el.recType.innerText = translations[currentLang].recOnGrid;
-                el.recDesc.innerText = translations[currentLang].descOnGrid;
-            } else {
-                el.recType.innerText = translations[currentLang].recHybrid;
-                el.recDesc.innerText = translations[currentLang].descHybrid;
-            }
+    function pulseHero() {
+      els.savingsHero.classList.remove('pulse-soft');
+      void els.savingsHero.offsetWidth;
+      els.savingsHero.classList.add('pulse-soft');
+    }
 
-            el.resultDashboard.classList.remove('hidden');
-            el.resultDashboard.scrollIntoView({ behavior: 'smooth' });
-            lucide.createIcons();
-        }
+   function renderZero(message) {
+  els.consumptionKwh.textContent = '0';
+  els.billAmount.textContent = '0.000';
+  els.tier1Usage.textContent = '0';
+  els.tier2Usage.textContent = '0';
+  els.tier3Usage.textContent = '0';
+  els.monthlySavings.textContent = '0.000';
+  els.annualSavings.textContent = '0.000';
+  els.currentBillDisplay.textContent = '0.000';
+  els.systemSize.textContent = '0.00';
+  els.panelCount.textContent = '0';
+  els.remainingBill.textContent = '0.000';
+  els.offsetBadge.innerHTML = '<i data-lucide="sun-medium" class="w-4 h-4"></i> تغطية متوقعة 0%';
+  els.tierBadge.innerHTML = '<i data-lucide="layers-3" class="w-4 h-4"></i> الشريحة 1';
+  els.salesPitch.textContent = message;
+  lucide.createIcons();
+}
 
-        // Event Listeners
-        el.fileInput.addEventListener('change', e => {
-            if (e.target.files[0]) processOcr(e.target.files[0]);
-        });
-        
-        document.getElementById('dropzone').onclick = () => el.fileInput.click();
-        el.calculateBtn.onclick = calculate;
-        
-        el.langToggle.onclick = () => {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            applyLang();
-        };
+    function render(kwh) {
+      const safeKwh = nonNegative(kwh) || 0;
+      const billData = getTierBreakdown(safeKwh);
+      const currentBill = billData.energyCharge;
+      const offsetRate = getOffsetRate(safeKwh);
+      const monthlySavings = currentBill * (offsetRate / 100);
+const annualSavings = monthlySavings * 12;
+const remainingBill = Math.max(0, currentBill - monthlySavings);
+      const systemSize = safeKwh > 0
+        ? (safeKwh / (CONFIG.irradianceMonthlyPerKwp * CONFIG.performanceRatio)) * CONFIG.designBuffer
+        : 0;
+      const panelCount = systemSize > 0 ? Math.ceil((systemSize * 1000) / CONFIG.panelWatt) : 0;
+      const tierLabel = getTierLabel(safeKwh);
 
-        function applyLang() {
-            const t = translations[currentLang];
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            el.langToggle.innerText = currentLang === 'ar' ? 'English' : 'العربية';
-            
-            Object.keys(t).forEach(key => {
-                const target = document.getElementById(key);
-                if (target) target.innerText = t[key];
-            });
-            if (!el.resultDashboard.classList.contains('hidden')) calculate();
-        }
-    </script>
+      els.consumptionKwh.textContent = fmt0(safeKwh);
+      els.billAmount.textContent = fmt3(currentBill);
+      els.tier1Usage.textContent = fmt0(billData.breakdown[0]);
+      els.tier2Usage.textContent = fmt0(billData.breakdown[1]);
+      els.tier3Usage.textContent = fmt0(billData.breakdown[2]);
+      els.monthlySavings.textContent = fmt3(monthlySavings);
+      els.annualSavings.textContent = fmt3(annualSavings);
+      els.currentBillDisplay.textContent = fmt3(currentBill);
+      els.systemSize.textContent = fmt2(systemSize);
+      els.panelCount.textContent = fmt0(panelCount);
+      els.remainingBill.textContent = fmt3(remainingBill);
+      els.offsetBadge.innerHTML = '<i data-lucide="sun-medium" class="w-4 h-4"></i> تغطية متوقعة ' + fmt0(offsetRate) + '%';
+      els.tierBadge.innerHTML = '<i data-lucide="layers-3" class="w-4 h-4"></i> ' + tierLabel;
+      els.salesPitch.textContent = `استهلاكك الحالي ${fmt0(safeKwh)} ك.و.س، وقيمة الكهرباء فقط تقريبًا ${fmt3(currentBill)} د.أ. النظام المقترح ممكن يوفّر عليك حوالي ${fmt3(monthlySavings)} د.أ شهريًا مع تغطية متوقعة ${fmt0(offsetRate)}%.`;
+
+      pulseHero();
+      lucide.createIcons();
+    }
+
+    function recalculate() {
+      const kwh = deriveConsumptionFromReadings();
+      if (kwh == null) {
+        renderZero('أدخل القراءة السابقة والحالية بشكل صحيح ليظهر الاستهلاك والتوفير مباشرة.');
+        return;
+      }
+      render(kwh);
+    }
+
+    const debouncedRecalc = debounce(recalculate);
+
+    document.querySelectorAll('.calc-input').forEach((input) => {
+      input.addEventListener('input', (event) => {
+        const num = parseNumber(event.target.value);
+        if (num != null && num < 0) event.target.classList.add('error');
+        else event.target.classList.remove('error');
+        debouncedRecalc();
+      });
+    });
+
+    lucide.createIcons();
+    recalculate();
+  </script>
 </body>
 </html>
