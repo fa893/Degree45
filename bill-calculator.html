@@ -231,31 +231,23 @@
           </div>
           <h1 class="text-2xl md:text-4xl font-black text-slate-900 leading-tight mb-3">حاسبة توفير شمسي مخصصة لعرض العميل</h1>
           <p class="text-slate-600 leading-8 text-sm md:text-base max-w-2xl">
-            أدخل القراءة السابقة والحالية، وخلي العميل يشوف فورًا الاستهلاك المحسوب، قيمة استهلاك الكهرباء فقط، والتوفير الشهري المتوقع بشكل واضح ومقنع على الهاتف.
+            أدخل القراءة السابقة والحالية.
           </p>
         </div>
 
         <div class="soft-panel rounded-[28px] p-4 md:p-5">
           <div class="flex items-center justify-between gap-3 mb-4">
-            <div>
-              <p class="text-xs font-black text-slate-400 mb-1">هوية العرض</p>
-              <h2 class="text-lg font-black text-slate-900">مكان اللوقو</h2>
-            </div>
-            <div class="w-20 h-20 md:w-24 md:h-24 rounded-[24px] bg-white border border-dashed border-blue-300 flex items-center justify-center overflow-hidden shadow-sm">
-              <img src="logo.png" alt="logo" class="max-w-[70%] max-h-[70%] object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-              <div class="hidden w-full h-full items-center justify-center text-center text-[11px] font-black text-blue-700 px-2">logo.png</div>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div class="rounded-2xl bg-white border border-slate-200 px-4 py-3">
-              <p class="text-[11px] font-black text-slate-400 mb-1">أسلوب العرض</p>
-              <p class="text-sm font-black text-slate-900">احترافي + تسويقي</p>
-            </div>
-            <div class="rounded-2xl bg-white border border-slate-200 px-4 py-3">
-              <p class="text-[11px] font-black text-slate-400 mb-1">متوافق</p>
-              <p class="text-sm font-black text-slate-900">هاتف / واتساب / زيارة ميدانية</p>
-            </div>
-          </div>
+       <div class="w-80 h-28 md:w-[22rem] md:h-32 rounded-2xl bg-white border border-dashed border-blue-300 flex items-center justify-center overflow-hidden shadow-sm px-4">
+  <img
+    src="logo.png"
+    alt="logo"
+    class="w-full h-full object-contain"
+    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+  />
+  <div class="hidden w-full h-full items-center justify-center text-center text-sm md:text-base font-black text-blue-900">
+    logo.png
+  </div>
+</div>
         </div>
       </div>
     </section>
@@ -285,7 +277,7 @@
             <tr>
               <th>القراءة السابقة</th>
               <td><input id="previousReading" inputmode="decimal" class="field-input calc-input" placeholder="0" /></td>
-              <th>القراءة الحالية</th>
+              <th>القراءة الحالية/ القراءة المحتسبة</th>
               <td><input id="currentReading" inputmode="decimal" class="field-input calc-input" placeholder="0" /></td>
             </tr>
             <tr>
@@ -358,7 +350,31 @@
           <p class="text-white/78 leading-8 text-sm md:text-base max-w-xl mb-5">
             هذا هو المبلغ المتوقع توفيره شهريًا عند تركيب النظام المقترح بناءً على استهلاك الكهرباء فقط.
           </p>
+          <div class="mt-6 relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-white/20 via-white/10 to-white/5 p-5 md:p-6 shadow-2xl shadow-black/10 backdrop-blur-sm">
+  <div class="absolute top-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+  <div class="absolute bottom-0 right-0 w-28 h-28 bg-emerald-300/10 rounded-full blur-2xl"></div>
+
+  <div class="relative z-10 flex items-center justify-between gap-4">
+    <div>
+      <p class="text-[11px] md:text-xs font-black tracking-[0.2em] text-white/70 mb-2 uppercase">
+        التوفير السنوي المتوقع
+      </p>
+      <div class="flex items-end gap-2">
+        <span id="annualSavings" class="text-4xl md:text-5xl font-black text-white leading-none">0</span>
+        <span class="text-lg md:text-xl font-bold text-white/90 mb-1">د.أ</span>
+      </div>
+      <p class="text-white/75 text-sm md:text-base mt-3 leading-7">
+        وفّر على مدار السنة.
+      </p>
+    </div>
+
+    <div class="shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/15 border border-white/15 flex items-center justify-center">
+      <i data-lucide="badge-dollar-sign" class="w-7 h-7 md:w-8 md:h-8 text-white"></i>
+    </div>
+  </div>
+</div>
           <div class="flex flex-wrap gap-2">
+
             <span id="offsetBadge" class="status-chip bg-white/10 text-white"><i data-lucide="sun-medium" class="w-4 h-4"></i> تغطية متوقعة 0%</span>
             <span id="tierBadge" class="status-chip bg-white/10 text-white"><i data-lucide="layers-3" class="w-4 h-4"></i> الشريحة 1</span>
           </div>
@@ -390,7 +406,7 @@
               </div>
             </div>
             <div class="mini-value mb-2"><span id="systemSize">0.00</span> <span class="text-base font-bold">kWp</span></div>
-            <p class="text-sm text-slate-500 leading-7">تقدير مبدئي سريع يساعدك تشرح للعميل حجم النظام المناسب لاستهلاكه.</p>
+            <p class="text-sm text-slate-500 leading-7">تقدير مبدئي سريع يساعدك  على معرفة حجم النظام المناسب لك</p>
           </article>
 
           <article class="metric-card p-5 md:p-6">
@@ -404,7 +420,7 @@
               </div>
             </div>
             <div class="mini-value mb-2"><span id="panelCount">0</span> <span class="text-base font-bold">لوح</span></div>
-            <p class="text-sm text-slate-500 leading-7">تقدير أولي على أساس ألواح بقدرة 550 واط لعرض سريع وواضح.</p>
+            <p class="text-sm text-slate-500 leading-7">تقدير أولي على أساس ألواح بقدرة 550 واط </p>
           </article>
 
           <article class="metric-card p-5 md:p-6">
@@ -454,23 +470,24 @@
     };
 
     const els = {
-      previousReading: document.getElementById('previousReading'),
-      currentReading: document.getElementById('currentReading'),
-      consumptionKwh: document.getElementById('consumptionKwh'),
-      billAmount: document.getElementById('billAmount'),
-      tier1Usage: document.getElementById('tier1Usage'),
-      tier2Usage: document.getElementById('tier2Usage'),
-      tier3Usage: document.getElementById('tier3Usage'),
-      monthlySavings: document.getElementById('monthlySavings'),
-      currentBillDisplay: document.getElementById('currentBillDisplay'),
-      systemSize: document.getElementById('systemSize'),
-      panelCount: document.getElementById('panelCount'),
-      remainingBill: document.getElementById('remainingBill'),
-      offsetBadge: document.getElementById('offsetBadge'),
-      tierBadge: document.getElementById('tierBadge'),
-      salesPitch: document.getElementById('salesPitch'),
-      savingsHero: document.getElementById('savingsHero')
-    };
+  previousReading: document.getElementById('previousReading'),
+  currentReading: document.getElementById('currentReading'),
+  consumptionKwh: document.getElementById('consumptionKwh'),
+  billAmount: document.getElementById('billAmount'),
+  tier1Usage: document.getElementById('tier1Usage'),
+  tier2Usage: document.getElementById('tier2Usage'),
+  tier3Usage: document.getElementById('tier3Usage'),
+  monthlySavings: document.getElementById('monthlySavings'),
+  annualSavings: document.getElementById('annualSavings'),
+  currentBillDisplay: document.getElementById('currentBillDisplay'),
+  systemSize: document.getElementById('systemSize'),
+  panelCount: document.getElementById('panelCount'),
+  remainingBill: document.getElementById('remainingBill'),
+  offsetBadge: document.getElementById('offsetBadge'),
+  tierBadge: document.getElementById('tierBadge'),
+  salesPitch: document.getElementById('salesPitch'),
+  savingsHero: document.getElementById('savingsHero')
+};
 
     function debounce(fn, delay = 120) {
       let timer;
@@ -559,22 +576,23 @@
       els.savingsHero.classList.add('pulse-soft');
     }
 
-    function renderZero(message) {
-      els.consumptionKwh.textContent = '0';
-      els.billAmount.textContent = '0.000';
-      els.tier1Usage.textContent = '0';
-      els.tier2Usage.textContent = '0';
-      els.tier3Usage.textContent = '0';
-      els.monthlySavings.textContent = '0.000';
-      els.currentBillDisplay.textContent = '0.000';
-      els.systemSize.textContent = '0.00';
-      els.panelCount.textContent = '0';
-      els.remainingBill.textContent = '0.000';
-      els.offsetBadge.innerHTML = '<i data-lucide="sun-medium" class="w-4 h-4"></i> تغطية متوقعة 0%';
-      els.tierBadge.innerHTML = '<i data-lucide="layers-3" class="w-4 h-4"></i> الشريحة 1';
-      els.salesPitch.textContent = message;
-      lucide.createIcons();
-    }
+   function renderZero(message) {
+  els.consumptionKwh.textContent = '0';
+  els.billAmount.textContent = '0.000';
+  els.tier1Usage.textContent = '0';
+  els.tier2Usage.textContent = '0';
+  els.tier3Usage.textContent = '0';
+  els.monthlySavings.textContent = '0.000';
+  els.annualSavings.textContent = '0.000';
+  els.currentBillDisplay.textContent = '0.000';
+  els.systemSize.textContent = '0.00';
+  els.panelCount.textContent = '0';
+  els.remainingBill.textContent = '0.000';
+  els.offsetBadge.innerHTML = '<i data-lucide="sun-medium" class="w-4 h-4"></i> تغطية متوقعة 0%';
+  els.tierBadge.innerHTML = '<i data-lucide="layers-3" class="w-4 h-4"></i> الشريحة 1';
+  els.salesPitch.textContent = message;
+  lucide.createIcons();
+}
 
     function render(kwh) {
       const safeKwh = nonNegative(kwh) || 0;
@@ -582,7 +600,8 @@
       const currentBill = billData.energyCharge;
       const offsetRate = getOffsetRate(safeKwh);
       const monthlySavings = currentBill * (offsetRate / 100);
-      const remainingBill = Math.max(0, currentBill - monthlySavings);
+const annualSavings = monthlySavings * 12;
+const remainingBill = Math.max(0, currentBill - monthlySavings);
       const systemSize = safeKwh > 0
         ? (safeKwh / (CONFIG.irradianceMonthlyPerKwp * CONFIG.performanceRatio)) * CONFIG.designBuffer
         : 0;
@@ -595,6 +614,7 @@
       els.tier2Usage.textContent = fmt0(billData.breakdown[1]);
       els.tier3Usage.textContent = fmt0(billData.breakdown[2]);
       els.monthlySavings.textContent = fmt3(monthlySavings);
+      els.annualSavings.textContent = fmt3(annualSavings);
       els.currentBillDisplay.textContent = fmt3(currentBill);
       els.systemSize.textContent = fmt2(systemSize);
       els.panelCount.textContent = fmt0(panelCount);
