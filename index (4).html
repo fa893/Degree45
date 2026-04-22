@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Degree45 | Solar Entry</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Noto+Sans+Arabic:wght@400;500;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif; }
+    .glass { background: rgba(255,255,255,.82); backdrop-filter: blur(14px); }
+    .hero-bg {
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.18), transparent 30%),
+        radial-gradient(circle at top left, rgba(16,185,129,.18), transparent 28%),
+        linear-gradient(180deg, #eff6ff 0%, #f8fafc 38%, #ffffff 100%);
+    }
+  </style>
+</head>
+<body class="min-h-screen hero-bg text-slate-900">
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <section class="glass rounded-[2rem] border border-white/70 shadow-xl shadow-slate-200/60 overflow-hidden">
+      <div class="grid lg:grid-cols-2 gap-0">
+        <div class="p-6 sm:p-8 lg:p-10">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="w-20 h-16 sm:w-28 sm:h-20 rounded-2xl bg-white border border-dashed border-blue-300 flex items-center justify-center overflow-hidden shadow-sm px-3">
+              <img src="logo.png" alt="logo" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="hidden w-full h-full items-center justify-center text-sm font-black text-blue-900">logo.png</div>
+            </div>
+            <div>
+              <p class="text-[11px] font-black tracking-[0.3em] text-blue-700 uppercase mb-1">Degree45</p>
+              <h1 class="text-2xl sm:text-4xl font-black leading-tight">اختر طريقة دراسة العميل</h1>
+            </div>
+          </div>
+
+          <p class="text-slate-600 text-sm sm:text-base leading-8 max-w-2xl mb-8">
+            هذه الصفحة الرئيسية تجمع بين مسارين للبيع. إذا كان العميل يملك فاتورة كهرباء، ادخل من مسار الفاتورة.
+            وإذا لم تكن لديه فاتورة وتريد بناء دراسة من الأجهزة والأحمال، ادخل من مسار الأحمال والمعدات.
+          </p>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <a href="bill-calculator.html" class="group rounded-[1.75rem] border border-blue-200 bg-white p-5 sm:p-6 shadow-lg shadow-blue-100/50 hover:-translate-y-1 hover:shadow-xl transition-all">
+              <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mb-4 text-xl font-black">1</div>
+              <h2 class="text-lg sm:text-xl font-black mb-2">عنده فاتورة كهرباء</h2>
+              <p class="text-sm text-slate-600 leading-7 mb-4">إدخال القراءة السابقة والحالية وحساب الاستهلاك وقيمة الكهرباء والتوفير الشهري والسنوي.</p>
+              <div class="inline-flex items-center gap-2 text-blue-700 font-black text-sm">الدخول لمسار الفاتورة <span class="group-hover:-translate-x-1 transition-transform">←</span></div>
+            </a>
+
+            <a href="load-profile-calculator.html" class="group rounded-[1.75rem] border border-emerald-200 bg-white p-5 sm:p-6 shadow-lg shadow-emerald-100/50 hover:-translate-y-1 hover:shadow-xl transition-all">
+              <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mb-4 text-xl font-black">2</div>
+              <h2 class="text-lg sm:text-xl font-black mb-2">ما عنده فاتورة</h2>
+              <p class="text-sm text-slate-600 leading-7 mb-4">إدخال الأجهزة والمعدات وفترات التشغيل وعمل Load Profile احترافي مع نفس المخرجات البيعية.</p>
+              <div class="inline-flex items-center gap-2 text-emerald-700 font-black text-sm">الدخول لمسار الأحمال <span class="group-hover:-translate-x-1 transition-transform">←</span></div>
+            </a>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 text-white p-6 sm:p-8 lg:p-10 flex flex-col justify-between">
+          <div>
+            <span class="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black tracking-[0.25em] uppercase text-white/80 mb-6">Sales Flow</span>
+            <h3 class="text-2xl sm:text-3xl font-black leading-tight mb-5">نقطة دخول واحدة لكل سيناريو بيع</h3>
+            <p class="text-white/75 leading-8 text-sm sm:text-base mb-8">
+              استخدم هذه الصفحة كبوابة رئيسية للعرض على العميل. اختصار واضح، سريع، ومقنع. من أول خطوة يعرف العميل هل سيتم التقييم من الفاتورة أو من الأجهزة مباشرة.
+            </p>
+          </div>
+
+          <div class="grid gap-4">
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <p class="text-xs font-black tracking-[0.2em] text-white/60 mb-2 uppercase">ترتيب الملفات</p>
+              <div class="space-y-2 text-sm sm:text-base font-bold">
+                <div><span class="text-white/60">الصفحة الرئيسية:</span> <span class="text-white">index.html</span></div>
+                <div><span class="text-white/60">مسار الفاتورة:</span> <span class="text-white">bill-calculator.html</span></div>
+                <div><span class="text-white/60">مسار الأحمال:</span> <span class="text-white">load-profile-calculator.html</span></div>
+                <div><span class="text-white/60">الشعار:</span> <span class="text-white">logo.png</span></div>
+              </div>
+            </div>
+
+            <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-blue-500/20 to-emerald-500/20 p-5">
+              <p class="text-white text-lg font-black mb-2">النتيجة</p>
+              <p class="text-white/80 text-sm leading-7">صار عندك نظام دخول مرتب لعميل الفاتورة وعميل الأحمال، بنفس الهوية البصرية ونفس طريقة العرض البيعي.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Degree45 | Load Profile Solar Designer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Noto+Sans+Arabic:wght@400;500;700;800&display=swap');
+
+    :root {
+      --brand-primary: #0f766e;
+      --brand-secondary: #2563eb;
+      --brand-ink: #0f172a;
+      --brand-soft: #f8fafc;
+      --brand-card: rgba(255,255,255,0.95);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.10), transparent 25%),
+        radial-gradient(circle at top left, rgba(13,148,136,.10), transparent 22%),
+        #f8fafc;
+      color: var(--brand-ink);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .glass-card {
+      background: var(--brand-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
+    }
+
+    .hero-gradient {
+      background: linear-gradient(135deg, #0f766e 0%, #2563eb 100%);
+    }
+
+    .soft-gradient {
+      background: linear-gradient(135deg, rgba(15,118,110,.08), rgba(37,99,235,.08));
+    }
+
+    .input-shell {
+      border: 1px solid rgba(203, 213, 225, 0.9);
+      background: rgba(255,255,255,0.9);
+      transition: 180ms ease;
+    }
+
+    .input-shell:focus-within {
+      border-color: rgba(37,99,235,0.55);
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+      transform: translateY(-1px);
+    }
+
+    .metric-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      inset-inline-end: -30px;
+      inset-block-start: -20px;
+      width: 100px;
+      height: 100px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .device-card {
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .device-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+      border-color: rgba(37,99,235,0.25);
+    }
+
+    .result-number {
+      font-size: clamp(2.2rem, 7vw, 4rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .pulse-in {
+      animation: pulseIn 450ms ease;
+    }
+
+    @keyframes pulseIn {
+      0% { transform: scale(.98); opacity: .6; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .chart-wrap { position: relative; width: 100%; height: 240px; }
+    .chart-wrap.chart-wrap-lg { height: 280px; }
+    canvas { max-width: 100%; }
+
+    @media (max-width: 640px) {
+      .chart-wrap { height: 220px; }
+      .chart-wrap.chart-wrap-lg { height: 250px; }
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+      .glass-card { box-shadow: none; border: 1px solid #e2e8f0; }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl hero-gradient text-white flex items-center justify-center shadow-lg shadow-teal-900/10 shrink-0">
+          <i data-lucide="sun-medium" class="w-6 h-6 sm:w-7 sm:h-7"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight text-slate-900 truncate">Degree<span class="text-blue-600">45</span></h1>
+          <p class="text-[10px] sm:text-xs font-bold tracking-[0.22em] text-slate-400 uppercase">Load Profile Solar Designer</p>
+        </div>
+      </div>
+
+      <div class="w-40 h-16 sm:w-64 sm:h-20 rounded-2xl bg-white border border-dashed border-blue-300 flex items-center justify-center overflow-hidden shadow-sm px-4 shrink-0">
+        <img src="logo.png" alt="logo" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="hidden w-full h-full items-center justify-center text-center text-sm sm:text-base font-black text-blue-900">logo.png</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
+    <section class="glass-card rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden">
+      <div class="hero-gradient text-white p-5 sm:p-8 lg:p-10">
+        <div class="grid lg:grid-cols-[1.2fr_.8fr] gap-6 items-center">
+          <div>
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/10 px-4 py-2 text-[11px] sm:text-xs font-black tracking-[0.18em] uppercase">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              أداة احترافية لتحليل الأحمال
+            </span>
+            <h2 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-black leading-tight">صمّم نظام شمسي مقنع للزبون من الأجهزة نفسها</h2>
+            <p class="mt-4 text-sm sm:text-base text-white/85 leading-8 max-w-3xl">
+              أدخل الأجهزة، ساعات التشغيل، والفترات الزمنية المختلفة، وسيقوم الموقع بحساب الاستهلاك اليومي والشهري، اقتراح حجم النظام، وإظهار منحنيات حمل احترافية تساعدك في عرض الحل بشكل بيعي واضح ومقنع.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <div class="metric-card rounded-3xl bg-white/10 border border-white/10 p-4 sm:p-5">
+              <p class="text-[11px] sm:text-xs font-black tracking-[0.15em] text-white/70 mb-2 uppercase">إدخال مرن</p>
+              <div class="text-xl sm:text-2xl font-black">عدة أجهزة</div>
+              <p class="text-white/75 text-xs sm:text-sm mt-2 leading-7">أضف عدد غير محدود من الأحمال مع أكثر من فترة تشغيل لكل جهاز.</p>
+            </div>
+            <div class="metric-card rounded-3xl bg-white/10 border border-white/10 p-4 sm:p-5">
+              <p class="text-[11px] sm:text-xs font-black tracking-[0.15em] text-white/70 mb-2 uppercase">منحنيات</p>
+              <div class="text-xl sm:text-2xl font-black">Power Curves</div>
+              <p class="text-white/75 text-xs sm:text-sm mt-2 leading-7">عرض حمل يومي، مقارنة مع الإنتاج الشمسي، ومنحنى طاقة تراكمي.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid xl:grid-cols-[1.05fr_.95fr] gap-6">
+      <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 lg:p-8 space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900">جدول الأجهزة والأحمال</h3>
+            <p class="text-sm text-slate-500 mt-1">أدخل كل جهاز مع القدرة والعدد وفترات التشغيل لحساب الحمل اليومي بدقة.</p>
+          </div>
+          <button id="addDeviceBtn" class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 text-white px-4 py-3 text-sm font-black hover:bg-slate-800 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            إضافة جهاز
+          </button>
+        </div>
+
+        <div class="grid sm:grid-cols-3 gap-3 sm:gap-4">
+          <div class="input-shell rounded-2xl p-4">
+            <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">ساعات شمس فعالة</label>
+            <input id="sunHours" type="number" min="1" max="9" step="0.1" value="5.5" class="w-full bg-transparent outline-none text-2xl font-black text-blue-700" />
+            <p class="text-xs text-slate-400 mt-2">افتراضي مناسب للأردن</p>
+          </div>
+          <div class="input-shell rounded-2xl p-4">
+            <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">نسبة الأداء</label>
+            <input id="performanceRatio" type="number" min="0.5" max="1" step="0.01" value="0.80" class="w-full bg-transparent outline-none text-2xl font-black text-emerald-700" />
+            <p class="text-xs text-slate-400 mt-2">يشمل الفواقد التشغيلية</p>
+          </div>
+          <div class="input-shell rounded-2xl p-4">
+            <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">قدرة اللوح (واط)</label>
+            <input id="panelWatt" type="number" min="100" step="10" value="550" class="w-full bg-transparent outline-none text-2xl font-black text-teal-700" />
+            <p class="text-xs text-slate-400 mt-2">يمكن تعديلها حسب المنتج</p>
+          </div>
+        </div>
+
+        <div id="deviceList" class="space-y-4"></div>
+      </div>
+
+      <div class="space-y-6">
+        <section class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 lg:p-8">
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <div>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900">النتائج الذكية</h3>
+              <p class="text-sm text-slate-500 mt-1">مخرجات احترافية جاهزة للعرض على العميل</p>
+            </div>
+            <button onclick="window.print()" class="no-print inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-black text-slate-700 hover:bg-slate-50 transition-all">
+              <i data-lucide="printer" class="w-4 h-4"></i>
+              طباعة
+            </button>
+          </div>
+
+          <div class="hero-gradient rounded-[2rem] p-5 sm:p-6 text-white">
+            <p class="text-[11px] sm:text-xs font-black tracking-[0.2em] text-white/70 uppercase mb-2">التوفير الشهري المتوقع</p>
+            <div class="result-number mb-3"><span id="monthlySavings">0</span> <span class="text-xl md:text-2xl font-bold">د.أ</span></div>
+            <p class="text-white/80 leading-8 text-sm md:text-base max-w-xl mb-5">
+              هذا هو المبلغ المتوقع توفيره شهريًا عند تغطية الاستهلاك الكهربائي بواسطة النظام الشمسي المقترح.
+            </p>
+
+            <div class="mt-6 relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-white/20 via-white/10 to-white/5 p-5 md:p-6 shadow-2xl shadow-black/10 backdrop-blur-sm">
+              <div class="absolute top-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+              <div class="absolute bottom-0 right-0 w-28 h-28 bg-emerald-300/10 rounded-full blur-2xl"></div>
+
+              <div class="relative z-10 flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-[11px] md:text-xs font-black tracking-[0.2em] text-white/70 mb-2 uppercase">التوفير السنوي المتوقع</p>
+                  <div class="flex items-end gap-2">
+                    <span id="annualSavings" class="text-5xl md:text-6xl font-black text-white leading-none tracking-tight drop-shadow-sm">0</span>
+                    <span class="text-lg md:text-xl font-bold text-white/90 mb-1">د.أ</span>
+                  </div>
+                  <p class="text-white/75 text-sm md:text-base mt-3 leading-7">
+                    قيمة سنوية واضحة وقوية تساعدك في إقناع العميل بالعائد المتوقع من الحل المقترح.
+                  </p>
+                </div>
+                <div class="shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/15 border border-white/15 flex items-center justify-center">
+                  <i data-lucide="badge-dollar-sign" class="w-7 h-7 md:w-8 md:h-8 text-white"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4 mt-5">
+            <div class="soft-gradient rounded-3xl p-5 border border-slate-200/60">
+              <p class="text-xs font-black tracking-[0.15em] text-slate-400 uppercase mb-2">الاستهلاك اليومي</p>
+              <div class="text-3xl font-black text-slate-900"><span id="dailyEnergy">0</span> <span class="text-base font-bold text-slate-500">kWh</span></div>
+            </div>
+            <div class="soft-gradient rounded-3xl p-5 border border-slate-200/60">
+              <p class="text-xs font-black tracking-[0.15em] text-slate-400 uppercase mb-2">الاستهلاك الشهري</p>
+              <div class="text-3xl font-black text-slate-900"><span id="monthlyEnergy">0</span> <span class="text-base font-bold text-slate-500">kWh</span></div>
+            </div>
+            <div class="soft-gradient rounded-3xl p-5 border border-slate-200/60">
+              <p class="text-xs font-black tracking-[0.15em] text-slate-400 uppercase mb-2">حجم النظام المقترح</p>
+              <div class="text-3xl font-black text-slate-900"><span id="systemSize">0</span> <span class="text-base font-bold text-slate-500">kWp</span></div>
+            </div>
+            <div class="soft-gradient rounded-3xl p-5 border border-slate-200/60">
+              <p class="text-xs font-black tracking-[0.15em] text-slate-400 uppercase mb-2">عدد الألواح</p>
+              <div class="text-3xl font-black text-slate-900"><span id="panelCount">0</span> <span class="text-base font-bold text-slate-500">لوح</span></div>
+            </div>
+            <div class="soft-gradient rounded-3xl p-5 border border-slate-200/60">
+              <p class="text-xs font-black tracking-[0.15em] text-slate-400 uppercase mb-2">قيمة الكهرباء الشهرية</p>
+              <div class="text-3xl font-black text-slate-900"><span id="currentBill">0</span> <span class="text-base font-bold text-slate-500">د.أ</span></div>
+            </div>
+            <div class="soft-gradient rounded-3xl p-5 border border-slate-200/60">
+              <p class="text-xs font-black tracking-[0.15em] text-slate-400 uppercase mb-2">أعلى حمل لحظي</p>
+              <div class="text-3xl font-black text-slate-900"><span id="peakLoad">0</span> <span class="text-base font-bold text-slate-500">W</span></div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-3 mt-5">
+            <div id="tierBadge" class="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-4 py-2 text-sm font-black">
+              <i data-lucide="layers-3" class="w-4 h-4"></i>
+              الشريحة 1
+            </div>
+            <div id="offsetBadge" class="inline-flex items-center gap-2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 text-sm font-black">
+              <i data-lucide="sun-medium" class="w-4 h-4"></i>
+              تغطية متوقعة 95%
+            </div>
+          </div>
+
+          <div class="mt-5 rounded-3xl bg-slate-950 text-white p-5 sm:p-6">
+            <p class="text-[11px] font-black tracking-[0.18em] text-white/50 uppercase mb-3">رسالة عرض بيعي</p>
+            <p id="salesPitch" class="text-sm sm:text-base text-white/85 leading-8">ابدأ بإضافة الأجهزة للحصول على تحليل احترافي للأحمال ومنحنيات التشغيل.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="grid lg:grid-cols-2 gap-6">
+      <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 lg:p-8">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900">Power Profile</h3>
+            <p class="text-sm text-slate-500 mt-1">منحنى الحمل اللحظي على مدار 24 ساعة</p>
+          </div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-4 py-2 text-xs font-black">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+            24 ساعة
+          </span>
+        </div>
+<div class="chart-wrap"><canvas id="loadProfileChart"></canvas></div>
+      </div>
+
+      <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 lg:p-8">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900">Load vs Solar Curve</h3>
+            <p class="text-sm text-slate-500 mt-1">مقارنة الحمل مع الإنتاج الشمسي المفترض</p>
+          </div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-4 py-2 text-xs font-black">
+            <i data-lucide="line-chart" class="w-4 h-4"></i>
+            مقارنة مباشرة
+          </span>
+        </div>
+        <div class="chart-wrap"><canvas id="solarVsLoadChart"></canvas></div>
+      </div>
+
+      <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 lg:p-8 lg:col-span-2">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900">Cumulative Energy Curve</h3>
+            <p class="text-sm text-slate-500 mt-1">الطاقة المتراكمة خلال اليوم لإظهار نمط الاستهلاك الفعلي</p>
+          </div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-700 border border-slate-200 px-4 py-2 text-xs font-black">
+            <i data-lucide="trending-up" class="w-4 h-4"></i>
+            منحنى تراكمي
+          </span>
+        </div>
+        <div class="chart-wrap chart-wrap-lg"><canvas id="cumulativeChart"></canvas></div>
+      </div>
+    </section>
+  </main>
+
+  <template id="deviceTemplate">
+    <article class="device-card rounded-[1.75rem] border border-slate-200 bg-white p-4 sm:p-5 space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-black tracking-[0.18em] text-slate-400 uppercase mb-1">جهاز / حمل</p>
+          <h4 class="text-lg font-black text-slate-900">بيانات الحمل</h4>
+        </div>
+        <button class="remove-device inline-flex items-center gap-2 rounded-2xl border border-red-100 bg-red-50 text-red-600 px-3 py-2 text-xs font-black hover:bg-red-100 transition-all">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+          حذف
+        </button>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-3">
+        <label class="input-shell rounded-2xl p-4 block">
+          <span class="text-[11px] font-black text-slate-400 uppercase tracking-[0.18em] block mb-2">اسم الجهاز</span>
+          <input type="text" class="device-name w-full bg-transparent outline-none font-bold text-slate-900" placeholder="مثال: مكيف 2 طن" />
+        </label>
+        <label class="input-shell rounded-2xl p-4 block">
+          <span class="text-[11px] font-black text-slate-400 uppercase tracking-[0.18em] block mb-2">القدرة (W)</span>
+          <input type="number" min="0" step="1" class="device-watt w-full bg-transparent outline-none font-black text-blue-700 text-xl" value="1000" />
+        </label>
+        <label class="input-shell rounded-2xl p-4 block">
+          <span class="text-[11px] font-black text-slate-400 uppercase tracking-[0.18em] block mb-2">العدد</span>
+          <input type="number" min="1" step="1" class="device-qty w-full bg-transparent outline-none font-black text-emerald-700 text-xl" value="1" />
+        </label>
+      </div>
+
+      <div class="rounded-3xl soft-gradient border border-slate-200/70 p-4 space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-sm font-black text-slate-900">فترات التشغيل</p>
+            <p class="text-xs text-slate-500 mt-1">أضف أكثر من فترة لنفس الجهاز خلال اليوم</p>
+          </div>
+          <button class="add-period inline-flex items-center gap-2 rounded-2xl bg-blue-600 text-white px-3 py-2 text-xs font-black hover:bg-blue-500 transition-all">
+            <i data-lucide="clock-3" class="w-4 h-4"></i>
+            إضافة فترة
+          </button>
+        </div>
+        <div class="period-list space-y-3"></div>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-3 text-sm">
+        <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+          <p class="text-xs font-black text-slate-400 uppercase tracking-[0.18em] mb-2">ساعات التشغيل</p>
+          <div class="text-2xl font-black text-slate-900"><span class="device-hours">0.0</span> h</div>
+        </div>
+        <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+          <p class="text-xs font-black text-slate-400 uppercase tracking-[0.18em] mb-2">الطاقة اليومية</p>
+          <div class="text-2xl font-black text-slate-900"><span class="device-daily">0.00</span> kWh</div>
+        </div>
+        <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+          <p class="text-xs font-black text-slate-400 uppercase tracking-[0.18em] mb-2">الحمل اللحظي</p>
+          <div class="text-2xl font-black text-slate-900"><span class="device-peak">0</span> W</div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <template id="periodTemplate">
+    <div class="period-row grid grid-cols-[1fr_1fr_auto] gap-3 items-end">
+      <label class="input-shell rounded-2xl p-4 block">
+        <span class="text-[11px] font-black text-slate-400 uppercase tracking-[0.18em] block mb-2">من</span>
+        <input type="time" class="period-start w-full bg-transparent outline-none font-black text-slate-900" value="08:00" />
+      </label>
+      <label class="input-shell rounded-2xl p-4 block">
+        <span class="text-[11px] font-black text-slate-400 uppercase tracking-[0.18em] block mb-2">إلى</span>
+        <input type="time" class="period-end w-full bg-transparent outline-none font-black text-slate-900" value="12:00" />
+      </label>
+      <button class="remove-period h-[58px] w-[58px] rounded-2xl border border-red-100 bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-all">
+        <i data-lucide="minus" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </template>
+
+  <script>
+    const CONFIG = {
+      tariffs: [
+        { limit: 300, rate: 0.050 },
+        { limit: 600, rate: 0.100 },
+        { limit: 750, rate: 0.115 },
+        { limit: 1000, rate: 0.120 },
+        { limit: Infinity, rate: 0.130 }
+      ],
+      monthlyDays: 30,
+      designBuffer: 1.15,
+      defaultOffsetRate: 94,
+      chartLabels: Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`)
+    };
+
+    const els = {
+      deviceList: document.getElementById('deviceList'),
+      addDeviceBtn: document.getElementById('addDeviceBtn'),
+      sunHours: document.getElementById('sunHours'),
+      performanceRatio: document.getElementById('performanceRatio'),
+      panelWatt: document.getElementById('panelWatt'),
+      monthlySavings: document.getElementById('monthlySavings'),
+      annualSavings: document.getElementById('annualSavings'),
+      dailyEnergy: document.getElementById('dailyEnergy'),
+      monthlyEnergy: document.getElementById('monthlyEnergy'),
+      systemSize: document.getElementById('systemSize'),
+      panelCount: document.getElementById('panelCount'),
+      currentBill: document.getElementById('currentBill'),
+      peakLoad: document.getElementById('peakLoad'),
+      tierBadge: document.getElementById('tierBadge'),
+      offsetBadge: document.getElementById('offsetBadge'),
+      salesPitch: document.getElementById('salesPitch')
+    };
+
+    const state = {
+      charts: {},
+      deviceCounter: 0
+    };
+
+    const fmt0 = (v) => Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    const fmt1 = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const fmt2 = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmt3 = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    const clamp = (val, min, max) => Math.min(max, Math.max(min, val));
+    const safeNum = (val, fallback = 0) => {
+      const n = Number(val);
+      return Number.isFinite(n) ? n : fallback;
+    };
+
+    function debounce(fn, wait = 180) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), wait);
+      };
+    }
+
+    function timeToHour(timeStr) {
+      if (!timeStr || !timeStr.includes(':')) return 0;
+      const [h, m] = timeStr.split(':').map(Number);
+      const hour = safeNum(h, 0);
+      const minute = safeNum(m, 0);
+      return clamp(hour + (minute / 60), 0, 24);
+    }
+
+    function diffHours(start, end) {
+      const s = timeToHour(start);
+      const e = timeToHour(end);
+      if (e === s) return 0;
+      if (e > s) return e - s;
+      return (24 - s) + e;
+    }
+
+    function getTierBreakdown(kwh) {
+      let remaining = Math.max(0, safeNum(kwh));
+      let total = 0;
+      let prevLimit = 0;
+      const breakdown = [];
+
+      for (const tier of CONFIG.tariffs) {
+        const tierRange = tier.limit === Infinity ? remaining : Math.max(0, tier.limit - prevLimit);
+        const used = Math.min(remaining, tierRange);
+        breakdown.push(used);
+        total += used * tier.rate;
+        remaining -= used;
+        prevLimit = tier.limit;
+        if (remaining <= 0) break;
+      }
+
+      while (breakdown.length < 5) breakdown.push(0);
+      return { energyCharge: total, breakdown };
+    }
+
+    function getTierLabel(kwh) {
+      if (kwh <= 300) return 'الشريحة 1';
+      if (kwh <= 600) return 'الشريحة 2';
+      if (kwh <= 750) return 'الشريحة 3';
+      if (kwh <= 1000) return 'الشريحة 4';
+      return 'الشريحة 5';
+    }
+
+    function getOffsetRate(monthlyKwh) {
+      if (monthlyKwh <= 300) return 92;
+      if (monthlyKwh <= 600) return 94;
+      if (monthlyKwh <= 1000) return 96;
+      return 97;
+    }
+
+    function createPeriodRow(start = '08:00', end = '12:00') {
+      const tpl = document.getElementById('periodTemplate').content.cloneNode(true);
+      const row = tpl.querySelector('.period-row');
+      row.querySelector('.period-start').value = start;
+      row.querySelector('.period-end').value = end;
+      return row;
+    }
+
+    function addPeriod(deviceCard, start, end) {
+      const periodList = deviceCard.querySelector('.period-list');
+      periodList.appendChild(createPeriodRow(start, end));
+      lucide.createIcons();
+    }
+
+    function createDeviceCard(data = {}) {
+      const tpl = document.getElementById('deviceTemplate').content.cloneNode(true);
+      const card = tpl.querySelector('.device-card');
+      card.dataset.id = `device-${++state.deviceCounter}`;
+
+      card.querySelector('.device-name').value = data.name || '';
+      card.querySelector('.device-watt').value = data.watt || 1000;
+      card.querySelector('.device-qty').value = data.qty || 1;
+
+      const periodList = card.querySelector('.period-list');
+      const periods = data.periods?.length ? data.periods : [{ start: '08:00', end: '12:00' }];
+      periods.forEach(period => periodList.appendChild(createPeriodRow(period.start, period.end)));
+
+      return card;
+    }
+
+    function getDeviceData(card) {
+      const name = card.querySelector('.device-name').value.trim();
+      const watt = Math.max(0, safeNum(card.querySelector('.device-watt').value));
+      const qty = Math.max(1, safeNum(card.querySelector('.device-qty').value, 1));
+      const periods = [...card.querySelectorAll('.period-row')].map(row => ({
+        start: row.querySelector('.period-start').value,
+        end: row.querySelector('.period-end').value
+      }));
+
+      const totalHours = periods.reduce((sum, p) => sum + diffHours(p.start, p.end), 0);
+      const peak = watt * qty;
+      const dailyKwh = (peak * totalHours) / 1000;
+
+      return { name, watt, qty, periods, totalHours, peak, dailyKwh };
+    }
+
+    function buildHourlyProfile(devices) {
+      const hourlyLoad = Array(24).fill(0);
+
+      devices.forEach(device => {
+        const loadWatt = device.watt * device.qty;
+        device.periods.forEach(period => {
+          const start = timeToHour(period.start);
+          const hours = diffHours(period.start, period.end);
+          for (let step = 0; step < 96; step++) {
+            const t = step / 4;
+            const relative = (t - start + 24) % 24;
+            if (relative < hours && hours > 0) {
+              const bucket = Math.floor(t);
+              hourlyLoad[bucket] += loadWatt / 4;
+            }
+          }
+        });
+      });
+
+      return hourlyLoad.map(v => Math.round(v));
+    }
+
+    function buildSolarCurve(systemSizeKwp, sunHours, performanceRatio) {
+      const solar = Array(24).fill(0);
+      const peakSolarW = systemSizeKwp * 1000 * performanceRatio;
+      const width = Math.max(2.5, sunHours / 2);
+      const center = 12;
+
+      for (let h = 0; h < 24; h++) {
+        const distance = Math.abs(h - center);
+        const normalized = Math.max(0, 1 - (distance / width) ** 2);
+        solar[h] = Math.round(peakSolarW * normalized);
+      }
+      return solar;
+    }
+
+    function buildCumulativeEnergy(hourlyLoad) {
+      let cumulative = 0;
+      return hourlyLoad.map(w => {
+        cumulative += w / 1000;
+        return Number(cumulative.toFixed(2));
+      });
+    }
+
+    function updateDeviceSummary(card) {
+      const data = getDeviceData(card);
+      card.querySelector('.device-hours').textContent = fmt1(data.totalHours);
+      card.querySelector('.device-daily').textContent = fmt2(data.dailyKwh);
+      card.querySelector('.device-peak').textContent = fmt0(data.peak);
+    }
+
+    function getAllDevices() {
+      return [...els.deviceList.querySelectorAll('.device-card')].map(getDeviceData);
+    }
+function getSmartAxisMax(values) {
+      const max = Math.max(...values, 0);
+      if (max <= 0) return 10;
+      const magnitude = Math.pow(10, Math.floor(Math.log10(max)));
+      const normalized = max / magnitude;
+      let niceTop;
+      if (normalized <= 1.2) niceTop = 1.2;
+      else if (normalized <= 1.5) niceTop = 1.5;
+      else if (normalized <= 2) niceTop = 2;
+      else if (normalized <= 3) niceTop = 3;
+      else if (normalized <= 5) niceTop = 5;
+      else niceTop = 10;
+      return niceTop * magnitude;
+    }
+
+    function getSmartStepSize(axisMax) {
+      if (axisMax <= 10) return 1;
+      if (axisMax <= 20) return 2;
+      if (axisMax <= 50) return 5;
+      if (axisMax <= 100) return 10;
+      if (axisMax <= 200) return 20;
+      if (axisMax <= 500) return 50;
+      if (axisMax <= 1000) return 100;
+      if (axisMax <= 2000) return 200;
+      if (axisMax <= 5000) return 500;
+      return Math.ceil(axisMax / 6 / 1000) * 1000;
+    }
+
+    function getResponsiveChartStyle(values) {
+      const max = Math.max(...values, 0);
+      if (max <= 50) return { borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25 };
+      if (max <= 300) return { borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 4.5, tension: 0.28 };
+      if (max <= 1500) return { borderWidth: 2.3, pointRadius: 0, pointHoverRadius: 5, tension: 0.3 };
+      return { borderWidth: 2.4, pointRadius: 0, pointHoverRadius: 5.5, tension: 0.32 };
+    }
+
+    function formatAxisValue(value) {
+      const abs = Math.abs(value);
+      if (abs >= 1000000) return (value / 1000000).toFixed(abs >= 10000000 ? 0 : 1) + 'M';
+      if (abs >= 1000) return (value / 1000).toFixed(abs >= 10000 ? 0 : 1) + 'k';
+      return String(Number(value.toFixed ? value.toFixed(2) : value));
+    }
+
+    function makeYScale(axisMax, stepSize) {
+      return {
+        beginAtZero: true,
+        suggestedMax: axisMax,
+        grace: '8%',
+        ticks: {
+          color: '#64748b',
+          padding: 8,
+          maxTicksLimit: 6,
+          stepSize,
+          callback: (value) => formatAxisValue(value),
+          font: {
+            family: 'Plus Jakarta Sans, Noto Sans Arabic, sans-serif',
+            weight: '700',
+            size: 10
+          }
+        },
+        grid: {
+          color: 'rgba(148,163,184,.08)',
+          drawBorder: false
+        }
+      };
+    }
+
+    function updateCharts(hourlyLoad, solarCurve, cumulativeEnergy) {
+      const loadAxisMax = getSmartAxisMax(hourlyLoad);
+      const solarLoadAxisMax = getSmartAxisMax([...hourlyLoad, ...solarCurve]);
+      const cumulativeAxisMax = getSmartAxisMax(cumulativeEnergy);
+
+      const loadAxisStep = getSmartStepSize(loadAxisMax);
+      const solarLoadAxisStep = getSmartStepSize(solarLoadAxisMax);
+      const cumulativeAxisStep = getSmartStepSize(cumulativeAxisMax);
+
+      const loadStyle = getResponsiveChartStyle(hourlyLoad);
+      const solarStyle = getResponsiveChartStyle([...hourlyLoad, ...solarCurve]);
+      const cumulativeStyle = getResponsiveChartStyle(cumulativeEnergy);
+
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 450,
+          easing: 'easeOutCubic'
+        },
+        normalized: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle',
+              boxWidth: 8,
+              boxHeight: 8,
+              padding: 16,
+              font: {
+                family: 'Plus Jakarta Sans, Noto Sans Arabic, sans-serif',
+                weight: '700',
+                size: 11
+              }
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15,23,42,.94)',
+            titleFont: {
+              family: 'Plus Jakarta Sans, Noto Sans Arabic, sans-serif',
+              weight: '700',
+              size: 12
+            },
+            bodyFont: {
+              family: 'Plus Jakarta Sans, Noto Sans Arabic, sans-serif',
+              weight: '600',
+              size: 12
+            },
+            padding: 12,
+            cornerRadius: 12
+          }
+        },
+        elements: {
+          line: { capBezierPoints: true }
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: '#64748b',
+              maxRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 8,
+              font: {
+                family: 'Plus Jakarta Sans, Noto Sans Arabic, sans-serif',
+                weight: '700',
+                size: 10
+              }
+            },
+            grid: {
+              color: 'rgba(148,163,184,.08)',
+              drawBorder: false
+            }
+          },
+          y: makeYScale(100, 10)
+        }
+      };
+
+      const loadCtx = document.getElementById('loadProfileChart');
+      const solarCtx = document.getElementById('solarVsLoadChart');
+      const cumulativeCtx = document.getElementById('cumulativeChart');
+
+      state.charts.loadProfile?.destroy();
+      state.charts.solarVsLoad?.destroy();
+      state.charts.cumulative?.destroy();
+
+      state.charts.loadProfile = new Chart(loadCtx, {
+        type: 'line',
+        data: {
+          labels: CONFIG.chartLabels,
+          datasets: [{
+            label: 'الحمل الكهربائي (W)',
+            data: hourlyLoad,
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37,99,235,.10)',
+            fill: true,
+            borderWidth: loadStyle.borderWidth,
+            tension: loadStyle.tension,
+            pointRadius: loadStyle.pointRadius,
+            pointHoverRadius: loadStyle.pointHoverRadius
+          }]
+        },
+        options: {
+          ...commonOptions,
+          plugins: {
+            ...commonOptions.plugins,
+            tooltip: {
+              ...commonOptions.plugins.tooltip,
+              callbacks: {
+                label: (ctx) => `الحمل: ${formatAxisValue(ctx.parsed.y)} W`
+              }
+            }
+          },
+          scales: {
+            ...commonOptions.scales,
+            y: makeYScale(loadAxisMax, loadAxisStep)
+          }
+        }
+      });
+
+      state.charts.solarVsLoad = new Chart(solarCtx, {
+        type: 'line',
+        data: {
+          labels: CONFIG.chartLabels,
+          datasets: [
+            {
+              label: 'الحمل (W)',
+              data: hourlyLoad,
+              borderColor: '#0f172a',
+              backgroundColor: 'rgba(15,23,42,.05)',
+              fill: false,
+              borderWidth: solarStyle.borderWidth,
+              tension: solarStyle.tension,
+              pointRadius: solarStyle.pointRadius,
+              pointHoverRadius: solarStyle.pointHoverRadius
+            },
+            {
+              label: 'الإنتاج الشمسي المفترض (W)',
+              data: solarCurve,
+              borderColor: '#0f766e',
+              backgroundColor: 'rgba(15,118,110,.10)',
+              fill: true,
+              borderWidth: solarStyle.borderWidth,
+              tension: solarStyle.tension,
+              pointRadius: solarStyle.pointRadius,
+              pointHoverRadius: solarStyle.pointHoverRadius
+            }
+          ]
+        },
+        options: {
+          ...commonOptions,
+          plugins: {
+            ...commonOptions.plugins,
+            tooltip: {
+              ...commonOptions.plugins.tooltip,
+              callbacks: {
+                label: (ctx) => `${ctx.dataset.label}: ${formatAxisValue(ctx.parsed.y)} W`
+              }
+            }
+          },
+          scales: {
+            ...commonOptions.scales,
+            y: makeYScale(solarLoadAxisMax, solarLoadAxisStep)
+          }
+        }
+      });
+
+      state.charts.cumulative = new Chart(cumulativeCtx, {
+        type: 'line',
+        data: {
+          labels: CONFIG.chartLabels,
+          datasets: [{
+            label: 'الطاقة التراكمية اليومية (kWh)',
+            data: cumulativeEnergy,
+            borderColor: '#7c3aed',
+            backgroundColor: 'rgba(124,58,237,.08)',
+            fill: true,
+            borderWidth: cumulativeStyle.borderWidth,
+            tension: 0.22,
+            pointRadius: 0,
+            pointHoverRadius: 4
+          }]
+        },
+        options: {
+          ...commonOptions,
+          plugins: {
+            ...commonOptions.plugins,
+            tooltip: {
+              ...commonOptions.plugins.tooltip,
+              callbacks: {
+                label: (ctx) => `الطاقة التراكمية: ${ctx.parsed.y.toFixed(2)} kWh`
+              }
+            }
+          },
+          scales: {
+            ...commonOptions.scales,
+            y: makeYScale(cumulativeAxisMax, cumulativeAxisStep)
+          }
+        }
+      });
+    }
+
+    function renderResults() {
+
+      const devices = getAllDevices();
+      devices.forEach((_, i) => updateDeviceSummary(els.deviceList.querySelectorAll('.device-card')[i]));
+
+      const dailyEnergy = devices.reduce((sum, d) => sum + d.dailyKwh, 0);
+      const monthlyEnergy = dailyEnergy * CONFIG.monthlyDays;
+      const billData = getTierBreakdown(monthlyEnergy);
+      const currentBill = billData.energyCharge;
+      const sunHours = clamp(safeNum(els.sunHours.value, 5.5), 1, 9);
+      const performanceRatio = clamp(safeNum(els.performanceRatio.value, 0.8), 0.5, 1);
+      const panelWatt = Math.max(100, safeNum(els.panelWatt.value, 550));
+      const systemSize = dailyEnergy > 0 ? ((dailyEnergy / (sunHours * performanceRatio)) * CONFIG.designBuffer) : 0;
+      const panelCount = systemSize > 0 ? Math.ceil((systemSize * 1000) / panelWatt) : 0;
+      const offsetRate = getOffsetRate(monthlyEnergy);
+      const monthlySavings = currentBill * (offsetRate / 100);
+      const annualSavings = monthlySavings * 12;
+      const hourlyLoad = buildHourlyProfile(devices);
+      const peakLoad = Math.max(...hourlyLoad, 0);
+      const solarCurve = buildSolarCurve(systemSize, sunHours, performanceRatio);
+      const cumulativeEnergy = buildCumulativeEnergy(hourlyLoad);
+      const deviceCount = devices.filter(d => d.watt > 0).length;
+
+      els.dailyEnergy.textContent = fmt2(dailyEnergy);
+      els.monthlyEnergy.textContent = fmt2(monthlyEnergy);
+      els.systemSize.textContent = fmt2(systemSize);
+      els.panelCount.textContent = fmt0(panelCount);
+      els.currentBill.textContent = fmt3(currentBill);
+      els.monthlySavings.textContent = fmt3(monthlySavings);
+      els.annualSavings.textContent = fmt3(annualSavings);
+      els.peakLoad.textContent = fmt0(peakLoad);
+      els.tierBadge.innerHTML = '<i data-lucide="layers-3" class="w-4 h-4"></i> ' + getTierLabel(monthlyEnergy);
+      els.offsetBadge.innerHTML = '<i data-lucide="sun-medium" class="w-4 h-4"></i> تغطية متوقعة ' + fmt0(offsetRate) + '%';
+
+      if (deviceCount === 0 || dailyEnergy <= 0) {
+        els.salesPitch.textContent = 'أدخل الأجهزة وفترات تشغيلها ليظهر لك تحليل حمل احترافي، حجم النظام المقترح، ومنحنيات طاقة مقنعة للعرض على العميل.';
+      } else {
+        els.salesPitch.textContent = `بناءً على ${fmt0(deviceCount)} أحمال مدخلة، يقدَّر الاستهلاك اليومي بحوالي ${fmt2(dailyEnergy)} ك.و.س، أي ما يعادل ${fmt2(monthlyEnergy)} ك.و.س شهريًا. هذا يعني نظامًا شمسيًا مقترحًا بقدرة ${fmt2(systemSize)} كيلوواط ذروة تقريبًا بعدد ${fmt0(panelCount)} لوح، مع توفير شهري متوقع ${fmt3(monthlySavings)} د.أ وتوفير سنوي ${fmt3(annualSavings)} د.أ.`;
+      }
+
+      updateCharts(hourlyLoad, solarCurve, cumulativeEnergy);
+      lucide.createIcons();
+      document.querySelectorAll('[data-live-block]').forEach(el => {
+        el.classList.remove('pulse-in');
+        void el.offsetWidth;
+        el.classList.add('pulse-in');
+      });
+    }
+
+    const debouncedRender = debounce(renderResults, 150);
+
+    function bindDeviceCard(card) {
+      card.addEventListener('input', debouncedRender);
+      card.addEventListener('change', debouncedRender);
+
+      card.querySelector('.add-period').addEventListener('click', () => {
+        addPeriod(card, '13:00', '17:00');
+        debouncedRender();
+      });
+
+      card.querySelector('.remove-device').addEventListener('click', () => {
+        if (els.deviceList.children.length === 1) {
+          card.querySelector('.device-name').value = '';
+          card.querySelector('.device-watt').value = 1000;
+          card.querySelector('.device-qty').value = 1;
+          const list = card.querySelector('.period-list');
+          list.innerHTML = '';
+          list.appendChild(createPeriodRow('08:00', '12:00'));
+          lucide.createIcons();
+          renderResults();
+          return;
+        }
+        card.remove();
+        renderResults();
+      });
+
+      card.addEventListener('click', (e) => {
+        const btn = e.target.closest('.remove-period');
+        if (!btn) return;
+        const rows = card.querySelectorAll('.period-row');
+        if (rows.length === 1) return;
+        btn.closest('.period-row').remove();
+        renderResults();
+      });
+    }
+
+    function addDevice(data) {
+      const card = createDeviceCard(data);
+      els.deviceList.appendChild(card);
+      bindDeviceCard(card);
+      lucide.createIcons();
+      renderResults();
+    }
+
+    function initCharts() {
+      updateCharts(Array(24).fill(0), Array(24).fill(0), Array(24).fill(0));
+    }
+
+    function init() {
+      addDevice({ name: 'مكيف', watt: 1800, qty: 1, periods: [{ start: '12:00', end: '18:00' }] });
+      addDevice({ name: 'إنارة', watt: 15, qty: 12, periods: [{ start: '18:00', end: '23:00' }] });
+      addDevice({ name: 'ثلاجة', watt: 180, qty: 1, periods: [{ start: '00:00', end: '24:00' }] });
+
+      els.addDeviceBtn.addEventListener('click', () => addDevice());
+      [els.sunHours, els.performanceRatio, els.panelWatt].forEach(el => {
+        el.addEventListener('input', debouncedRender);
+        el.addEventListener('change', debouncedRender);
+      });
+
+      initCharts();
+      renderResults();
+      lucide.createIcons();
+    }
+
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
